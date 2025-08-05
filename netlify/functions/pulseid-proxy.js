@@ -1,5 +1,7 @@
 export async function handler(event, context) {
-    const BASE_URL = "https://rockbottom.pulseidconnect.com/api/api/";
+    console.log('Proxy called with event:', event.queryStringParameters);
+
+    const BASE_URL = "https://rockbottom.pulseidconnect.com/api";
     const API_KEY = "pulseRockBottomGolf";
     const COMPANY = "PersonalizeYourGear";
 
@@ -40,6 +42,7 @@ export async function handler(event, context) {
                 "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
                 "Access-Control-Allow-Headers": "Content-Type, apiKey, company",
                 "Content-Type": "application/json",
+                "Cache-Control": "no-store"
             },
             body: JSON.stringify(data),
         };

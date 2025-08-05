@@ -17,11 +17,23 @@ const App = () => {
     setVariantId(vId);
 
     if (vId) {
-      fetch(`${apiBase}?endpoint=Template/GetTemplates&variantId=${vId}`)
-        .then((res) => res.json())
-        .then((data) => setTemplateOptions(data))
-        .catch(console.error);
-    }
+        fetch(`${apiBase}?endpoint=/api/Designer/GetProduct&variantId=${vId}`, {
+            cache: 'no-store'
+        })
+            .then(async (res) => {
+                const text = await res.text();
+                console.log('Raw response:', text); // See what HTML you're actually getting
+                try {
+                    const data = JSON.parse(text);
+                    setTemplateOptions(data);
+                } catch (err) {
+                    console.error('Failed to parse JSON:', err);
+                }
+            })
+            .catch((err) => {
+                console.error('Fetch failed:', err);
+            });
+  }
   }, []);
 
   const handlePreview = async () => {
