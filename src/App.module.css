@@ -51,21 +51,25 @@ html, body {
 }
 
 .fontButton {
-    padding: 0.5rem 1rem;
+    padding: 0.25rem 0.5rem;
     border: 1px solid #ccc;
     border-radius: 6px;
     background-color: white;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
+    width: 90px;
+    height: 60px;
 }
 
 .fontButtonSelected {
-    padding: 0.5rem 1rem;
+    padding: 0.25rem 0.5rem;
     border: 2px solid black;
     border-radius: 6px;
     background-color: white;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 14px;
+    width: 90px;
+    height: 60px;
 }
 
 .colorLabel {
@@ -182,4 +186,9 @@ html, body {
 .drawerHidden {
   max-height: 0;
   opacity: 0;
+}
+.fontPreviewImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }

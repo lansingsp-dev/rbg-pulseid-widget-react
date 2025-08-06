@@ -50,7 +50,7 @@ const App = () => {
 
     const fetchFonts = async () => {
       try {
-        const res = await fetch(`${apiBase}?endpoint=/api/Fonts/Get`, { cache: 'no-store' });
+        const res = await fetch(`${apiBase}?endpoint=/api/Fonts/GetFonts&dataView=1&getAllowedChars=true`, { cache: 'no-store' });
         const data = await res.json();
         setAvailableFonts(data);
       } catch (err) {
@@ -145,10 +145,13 @@ const App = () => {
                   <button
                     key={f.Id}
                     onClick={() => setFont(f.FontName)}
-                    style={{ fontFamily: f.FontName }}
                     className={isSelected ? styles.fontButtonSelected : styles.fontButton}
                   >
-                    {f.FontName}
+                    <img
+                      src={f.FontPreviewUrl.replace('{api domain}', 'rockbottom.pulseidconnect.com')}
+                      alt={f.FontName}
+                      className={styles.fontPreviewImage}
+                    />
                   </button>
                 );
               })}
@@ -210,10 +213,13 @@ const App = () => {
                     <button
                       key={f.Id}
                       onClick={() => setFont(f.FontName)}
-                      style={{ fontFamily: f.FontName }}
                       className={isSelected ? styles.fontButtonSelected : styles.fontButton}
                     >
-                      {f.FontName}
+                      <img
+                        src={f.FontPreviewUrl.replace('{api domain}', 'rockbottom.pulseidconnect.com')}
+                        alt={f.FontName}
+                        className={styles.fontPreviewImage}
+                      />
                     </button>
                   );
                 })}
