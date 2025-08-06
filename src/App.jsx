@@ -81,6 +81,7 @@ const App = () => {
   return (
     <div className={isMobile ? styles.appContainer : styles.container}>
       {isMobile ? (
+        // Mobile layout
         <>
           <div className={styles.fullscreenPreview}>
             <img
@@ -123,69 +124,61 @@ const App = () => {
             </button>
           </div>
 
-          {showTextInputs && (
-            <div className={styles.drawer}>
-              <h3>Enter Text</h3>
-              <div className={styles.labelInputDiv}>
-                <label>Line 1:</label>
-                <input value={textLine1} onChange={(e) => setTextLine1(e.target.value)} />
-              </div>
-              <div className={styles.labelInputDiv}>
-                <label>Line 2:</label>
-                <input value={textLine2} onChange={(e) => setTextLine2(e.target.value)} />
-              </div>
+          <div className={`${styles.drawer} ${showTextInputs ? styles.drawerVisible : styles.drawerHidden}`}>
+            <h3>Enter Text</h3>
+            <div className={styles.labelInputDiv}>
+              <label>Line 1:</label>
+              <input value={textLine1} onChange={(e) => setTextLine1(e.target.value)} />
             </div>
-          )}
+            <div className={styles.labelInputDiv}>
+              <label>Line 2:</label>
+              <input value={textLine2} onChange={(e) => setTextLine2(e.target.value)} />
+            </div>
+          </div>
 
-          {showFonts && (
-            <div className={styles.drawer}>
-              <h3>Select Font</h3>
-              <div className={styles.fontButtonRow}>
-                {availableFonts.map((f) => {
-                  const isSelected = font === f.FontName;
-                  return (
-                    <button
-                      key={f.Id}
-                      onClick={() => {
-                        setFont(f.FontName);
-                        setShowFonts(false);
-                      }}
-                      style={{ fontFamily: f.FontName }}
-                      className={isSelected ? styles.fontButtonSelected : styles.fontButton}
-                    >
-                      {f.FontName}
-                    </button>
-                  );
-                })}
-              </div>
+          <div className={`${styles.drawer} ${showFonts ? styles.drawerVisible : styles.drawerHidden}`}>
+            <h3>Select Font</h3>
+            <div className={styles.fontButtonRow}>
+              {availableFonts.map((f) => {
+                const isSelected = font === f.FontName;
+                return (
+                  <button
+                    key={f.Id}
+                    onClick={() => setFont(f.FontName)}
+                    style={{ fontFamily: f.FontName }}
+                    className={isSelected ? styles.fontButtonSelected : styles.fontButton}
+                  >
+                    {f.FontName}
+                  </button>
+                );
+              })}
             </div>
-          )}
+          </div>
 
-          {showColors && (
-            <div className={styles.drawer}>
-              <h3>Select Color</h3>
-              <div className={styles.colorButtonRow}>
-                {availableColors.map((c) => {
-                  const rgb = `rgb(${c.Red}, ${c.Green}, ${c.Blue})`;
-                  const isSelected = color === rgb;
-                  return (
-                    <button
-                      key={c.Id}
-                      onClick={() => {
-                        setColor(rgb);
-                        setShowColors(false);
-                      }}
-                      title={c.Name}
-                      style={{ backgroundColor: rgb }}
-                      className={isSelected ? styles.colorButtonSelected : styles.colorButton}
-                    />
-                  );
-                })}
-              </div>
+          <div className={`${styles.drawer} ${showColors ? styles.drawerVisible : styles.drawerHidden}`}>
+            <div>
+              <strong>Select Color:</strong>{" "}
+              {availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}
             </div>
-          )}
+            <div className={styles.colorButtonRow}>
+              {availableColors.map((c) => {
+                const rgb = `rgb(${c.Red}, ${c.Green}, ${c.Blue})`;
+                const isSelected = color === rgb;
+                return (
+                  <button
+                    key={c.Id}
+                    onClick={() => setColor(rgb)}
+                    title={c.Name}
+                    style={{ backgroundColor: rgb }}
+                    className={isSelected ? styles.colorButtonSelected : styles.colorButton}
+                  />
+                );
+              })}
+            </div>
+          </div>
         </>
       ) : (
+          // Desktop layout
         <>
           <div className={styles.imageContainer}>
             <img
