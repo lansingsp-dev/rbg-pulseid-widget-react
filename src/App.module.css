@@ -1,24 +1,36 @@
 /* App.module.css */
 
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
 .container {
-    display: flex;
-    align-items: flex-start;
-    gap: 2rem;
-    padding: 1rem;
-    font-family: Arial;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+    font-family: Arial, serif;
 }
 
 .imageContainer {
-    flex: 1 1 50%;
+  flex: 0 0 auto;
+  text-align: center;
+  padding: 0.5rem;
 }
 
 .image {
-    width: 100%;
-    max-width: 400px;
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  margin: 0 auto;
 }
 
 .controlContainer {
-    flex: 1 1 50%;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 0.5rem 1rem;
 }
 
 .labelInputDiv {
@@ -75,6 +87,22 @@
     position: relative;
 }
 
+@media screen and (min-width: 768px) {
+  .container {
+    flex-direction: row;
+    height: auto;
+  }
+
+  .imageContainer,
+  .controlContainer {
+    flex: 1 1 50%;
+    overflow: visible;
+  }
+
+  .image {
+    max-width: 400px;
+  }
+}
 .colorButtonSelected {
     border: 2px solid black;
     width: 40px;
