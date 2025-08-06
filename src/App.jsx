@@ -91,17 +91,34 @@ const App = () => {
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
-          <label>Font: </label>
-            <select value={font} onChange={(e) => setFont(e.target.value)}>
-                {availableFonts.map((f) => (
-                    <option key={f.Id} value={f.FontName}>{f.FontName}</option>
-                ))}
-            </select>
+          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>Font:</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            {availableFonts.map((f) => {
+              const isSelected = font === f.FontName;
+              return (
+                <button
+                  key={f.Id}
+                  onClick={() => setFont(f.FontName)}
+                  style={{
+                    fontFamily: f.FontName,
+                    padding: '0.5rem 1rem',
+                    border: isSelected ? '2px solid black' : '1px solid #ccc',
+                    borderRadius: '6px',
+                    backgroundColor: 'white',
+                    cursor: 'pointer',
+                    fontSize: '16px'
+                  }}
+                >
+                  {f.FontName}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
-          <label>Color: </label>
-         <strong>{availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}</strong>
+          <label style={{ fontWeight: 'bold' }}>Color: </label>
+          <span>{availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}</span>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
             {availableColors.map((c) => {
               const rgb = `rgb(${c.Red}, ${c.Green}, ${c.Blue})`;
