@@ -1,0 +1,85 @@
+/* App.module.css */
+
+.container {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    padding: 1rem;
+    font-family: Arial;
+}
+
+.imageContainer {
+    flex: 1 1 50%;
+}
+
+.image {
+    width: 100%;
+    max-width: 400px;
+}
+
+.controlContainer {
+    flex: 1 1 50%;
+}
+
+.labelInputDiv {
+    margin-bottom: 1rem;
+}
+
+.fontLabel {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.fontButtonRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.fontButton {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.fontButtonSelected {
+    padding: 0.5rem 1rem;
+    border: 2px solid black;
+    border-radius: 6px;
+    background-color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.colorLabel {
+    font-weight: bold;
+}
+
+.colorButtonRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.colorButton {
+    border: 1px solid #ccc;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+}
+
+.colorButtonSelected {
+    border: 2px solid black;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+}

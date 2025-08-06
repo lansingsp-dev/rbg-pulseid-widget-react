@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import styles from './App.module.css';
 
 const apiBase = '/api/pulseid-proxy'; // Netlify proxy path
 
@@ -66,48 +67,41 @@ const App = () => {
   }, []);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '2rem', padding: '1rem', fontFamily: 'Arial' }}>
+    <div className={styles.container}>
       {/* Left: Image */}
-      <div style={{ flex: '1 1 50%' }}>
+      <div className={styles.imageContainer}>
         <img
           src={product?.ProductPreviewURL}
           alt="Bag Preview"
-          style={{ width: '100%', maxWidth: '400px' }}
+          className={styles.image}
         />
       </div>
 
       {/* Right: Controls */}
-      <div style={{ flex: '1 1 50%' }}>
+      <div className={styles.controlContainer}>
         <h2>Customize Your Product</h2>
 
-        <div style={{ marginBottom: '1rem' }}>
+        <div className={styles.labelInputDiv}>
           <label>Line 1: </label>
           <input value={textLine1} onChange={(e) => setTextLine1(e.target.value)} />
         </div>
 
-        <div style={{ marginBottom: '1rem' }}>
+        <div className={styles.labelInputDiv}>
           <label>Line 2: </label>
           <input value={textLine2} onChange={(e) => setTextLine2(e.target.value)} />
         </div>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '0.5rem' }}>Font:</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <div className={styles.labelInputDiv}>
+          <label className={styles.fontLabel}>Font:</label>
+          <div className={styles.fontButtonRow}>
             {availableFonts.map((f) => {
               const isSelected = font === f.FontName;
               return (
                 <button
                   key={f.Id}
                   onClick={() => setFont(f.FontName)}
-                  style={{
-                    fontFamily: f.FontName,
-                    padding: '0.5rem 1rem',
-                    border: isSelected ? '2px solid black' : '1px solid #ccc',
-                    borderRadius: '6px',
-                    backgroundColor: 'white',
-                    cursor: 'pointer',
-                    fontSize: '16px'
-                  }}
+                  style={{ fontFamily: f.FontName }}
+                  className={isSelected ? styles.fontButtonSelected : styles.fontButton}
                 >
                   {f.FontName}
                 </button>
@@ -116,10 +110,10 @@ const App = () => {
           </div>
         </div>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ fontWeight: 'bold' }}>Color: </label>
+        <div className={styles.labelInputDiv}>
+          <label className={styles.colorLabel}>Color: </label>
           <span>{availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}</span>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
+          <div className={styles.colorButtonRow}>
             {availableColors.map((c) => {
               const rgb = `rgb(${c.Red}, ${c.Green}, ${c.Blue})`;
               const isSelected = color === rgb;
@@ -128,15 +122,8 @@ const App = () => {
                   key={c.Id}
                   onClick={() => setColor(rgb)}
                   title={c.Name}
-                  style={{
-                    backgroundColor: rgb,
-                    border: isSelected ? '2px solid black' : '1px solid #ccc',
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    position: 'relative'
-                  }}
+                  style={{ backgroundColor: rgb }}
+                  className={isSelected ? styles.colorButtonSelected : styles.colorButton}
                 >
                 </button>
               );
