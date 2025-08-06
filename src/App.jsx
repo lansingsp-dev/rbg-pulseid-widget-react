@@ -7,7 +7,6 @@ const App = () => {
   const [product, setProduct] = useState(null);
   const [templateOptions, setTemplateOptions] = useState([]);
   const [textLine1, setTextLine1] = useState('');
-  const [textLine2, setTextLine2] = useState('');
   const [font, setFont] = useState('Block');
   const [color, setColor] = useState('rgb(153, 0, 0)'); // instead of hex
   const [variantId, setVariantId] = useState(null);
@@ -127,12 +126,8 @@ const App = () => {
           <div className={`${styles.drawer} ${showTextInputs ? styles.drawerVisible : styles.drawerHidden}`}>
             <h3>Enter Text</h3>
             <div className={styles.labelInputDiv}>
-              <label>Line 1:</label>
+              <label>Text:</label>
               <input value={textLine1} onChange={(e) => setTextLine1(e.target.value)} />
-            </div>
-            <div className={styles.labelInputDiv}>
-              <label>Line 2:</label>
-              <input value={textLine2} onChange={(e) => setTextLine2(e.target.value)} />
             </div>
           </div>
 
@@ -195,13 +190,8 @@ const App = () => {
             <h2>Customize Your Product</h2>
 
             <div className={styles.labelInputDiv}>
-              <label>Line 1: </label>
+              <label>Text: </label>
               <input value={textLine1} onChange={(e) => setTextLine1(e.target.value)} />
-            </div>
-
-            <div className={styles.labelInputDiv}>
-              <label>Line 2: </label>
-              <input value={textLine2} onChange={(e) => setTextLine2(e.target.value)} />
             </div>
 
             <div className={styles.labelInputDiv}>
