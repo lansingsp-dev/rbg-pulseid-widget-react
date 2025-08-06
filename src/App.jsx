@@ -91,13 +91,34 @@ const App = () => {
           </div>
 
           <div className={styles.floatingControls}>
-            <button className={styles.toggleButton} onClick={() => setShowFonts(!showFonts)}>
+            <button
+              className={styles.toggleButton}
+              onClick={() => {
+                setShowFonts(prev => !prev);
+                setShowColors(false);
+                setShowTextInputs(false);
+              }}
+            >
               Fonts
             </button>
-            <button className={styles.toggleButton} onClick={() => setShowColors(!showColors)}>
+            <button
+              className={styles.toggleButton}
+              onClick={() => {
+                setShowColors(prev => !prev);
+                setShowFonts(false);
+                setShowTextInputs(false);
+              }}
+            >
               Colors
             </button>
-            <button className={styles.toggleButton} onClick={() => setShowTextInputs(!showTextInputs)}>
+            <button
+              className={styles.toggleButton}
+              onClick={() => {
+                setShowTextInputs(prev => !prev);
+                setShowFonts(false);
+                setShowColors(false);
+              }}
+            >
               Add Text
             </button>
           </div>
