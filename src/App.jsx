@@ -15,6 +15,17 @@ const App = () => {
   const [availableFonts, setAvailableFonts] = useState([]);
   const [availableColors, setAvailableColors] = useState([]);
 
+  const [showFonts, setShowFonts] = useState(false);
+  const [showColors, setShowColors] = useState(false);
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const vId = params.get('variantid');
@@ -67,85 +78,140 @@ const App = () => {
   }, []);
 
   return (
-    <div className={styles.container}>
-      {/* Left: Image */}
-      <div className={styles.imageContainer}>
-        <img
-          src={product?.ProductPreviewURL}
-          alt="Bag Preview"
-          className={styles.image}
-        />
-      </div>
-
-      {/* Right: Controls */}
-      <div className={styles.controlContainer}>
-        <h2>Customize Your Product</h2>
-
-        <div className={styles.labelInputDiv}>
-          <label>Line 1: </label>
-          <input value={textLine1} onChange={(e) => setTextLine1(e.target.value)} />
-        </div>
-
-        <div className={styles.labelInputDiv}>
-          <label>Line 2: </label>
-          <input value={textLine2} onChange={(e) => setTextLine2(e.target.value)} />
-        </div>
-
-        <div className={styles.labelInputDiv}>
-          <label className={styles.fontLabel}>Font:</label>
-          <div className={styles.fontButtonRow}>
-            {availableFonts.map((f) => {
-              const isSelected = font === f.FontName;
-              return (
-                <button
-                  key={f.Id}
-                  onClick={() => setFont(f.FontName)}
-                  style={{ fontFamily: f.FontName }}
-                  className={isSelected ? styles.fontButtonSelected : styles.fontButton}
-                >
-                  {f.FontName}
-                </button>
-              );
-            })}
+    <div className={isMobile ? styles.appContainer : styles.container}>
+      {isMobile ? (
+        <>
+          <div className={styles.fullscreenPreview}>
+            <img
+              src={product?.ProductPreviewURL}
+              alt="Bag Preview"
+              className={styles.fullscreenImage}
+            />
           </div>
-        </div>
 
-        <div className={styles.labelInputDiv}>
-          <label className={styles.colorLabel}>Color: </label>
-          <span>{availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}</span>
-          <div className={styles.colorButtonRow}>
-            {availableColors.map((c) => {
-              const rgb = `rgb(${c.Red}, ${c.Green}, ${c.Blue})`;
-              const isSelected = color === rgb;
-              return (
-                <button
-                  key={c.Id}
-                  onClick={() => setColor(rgb)}
-                  title={c.Name}
-                  style={{ backgroundColor: rgb }}
-                  className={isSelected ? styles.colorButtonSelected : styles.colorButton}
-                >
-                </button>
-              );
-            })}
+          <div className={styles.floatingControls}>
+            <button className={styles.toggleButton} onClick={() => setShowFonts(!showFonts)}>
+              Fonts
+            </button>
+            <button className={styles.toggleButton} onClick={() => setShowColors(!showColors)}>
+              Colors
+            </button>
           </div>
-        </div>
 
-        <hr />
+          {showFonts && (
+            <div className={styles.drawer}>
+              <h3>Select Font</h3>
+              <div className={styles.fontButtonRow}>
+                {availableFonts.map((f) => {
+                  const isSelected = font === f.FontName;
+                  return (
+                    <button
+                      key={f.Id}
+                      onClick={() => {
+                        setFont(f.FontName);
+                        setShowFonts(false);
+                      }}
+                      style={{ fontFamily: f.FontName }}
+                      className={isSelected ? styles.fontButtonSelected : styles.fontButton}
+                    >
+                      {f.FontName}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
-        <div>
-          <h3>Available Templates</h3>
-          <ul>
-            {Array.isArray(templateOptions.Templates) && templateOptions.Templates.length > 0 ? (
-              templateOptions.Templates.map((t) => (
-                <li key={t.id}>{t.name}</li>
-              ))
-            ) : (
-              <li>No templates found.</li>
-            )}
-          </ul>
-        </div>
-      </div>
+          {showColors && (
+            <div className={styles.drawer}>
+              <h3>Select Color</h3>
+              <div className={styles.colorButtonRow}>
+                {availableColors.map((c) => {
+                  const rgb = `rgb(${c.Red}, ${c.Green}, ${c.Blue})`;
+                  const isSelected = color === rgb;
+                  return (
+                    <button
+                      key={c.Id}
+                      onClick={() => {
+                        setColor(rgb);
+                        setShowColors(false);
+                      }}
+                      title={c.Name}
+                      style={{ backgroundColor: rgb }}
+                      className={isSelected ? styles.colorButtonSelected : styles.colorButton}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <div className={styles.imageContainer}>
+            <img
+              src={product?.ProductPreviewURL}
+              alt="Bag Preview"
+              className={styles.image}
+            />
+          </div>
+
+          <div className={styles.controlContainer}>
+            <h2>Customize Your Product</h2>
+
+            <div className={styles.labelInputDiv}>
+              <label>Line 1: </label>
+              <input value={textLine1} onChange={(e) => setTextLine1(e.target.value)} />
+            </div>
+
+            <div className={styles.labelInputDiv}>
+              <label>Line 2: </label>
+              <input value={textLine2} onChange={(e) => setTextLine2(e.target.value)} />
+            </div>
+
+            <div className={styles.labelInputDiv}>
+              <label className={styles.fontLabel}>Font:</label>
+              <div className={styles.fontButtonRow}>
+                {availableFonts.map((f) => {
+                  const isSelected = font === f.FontName;
+                  return (
+                    <button
+                      key={f.Id}
+                      onClick={() => setFont(f.FontName)}
+                      style={{ fontFamily: f.FontName }}
+                      className={isSelected ? styles.fontButtonSelected : styles.fontButton}
+                    >
+                      {f.FontName}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className={styles.labelInputDiv}>
+              <label className={styles.colorLabel}>Color: </label>
+              <span>
+                {availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}
+              </span>
+              <div className={styles.colorButtonRow}>
+                {availableColors.map((c) => {
+                  const rgb = `rgb(${c.Red}, ${c.Green}, ${c.Blue})`;
+                  const isSelected = color === rgb;
+                  return (
+                    <button
+                      key={c.Id}
+                      onClick={() => setColor(rgb)}
+                      title={c.Name}
+                      style={{ backgroundColor: rgb }}
+                      className={isSelected ? styles.colorButtonSelected : styles.colorButton}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
