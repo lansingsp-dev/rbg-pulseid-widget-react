@@ -17,6 +17,7 @@ const App = () => {
 
   const [showFonts, setShowFonts] = useState(false);
   const [showColors, setShowColors] = useState(false);
+  const [showTextInputs, setShowTextInputs] = useState(false);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -96,7 +97,24 @@ const App = () => {
             <button className={styles.toggleButton} onClick={() => setShowColors(!showColors)}>
               Colors
             </button>
+            <button className={styles.toggleButton} onClick={() => setShowTextInputs(!showTextInputs)}>
+              Add Text
+            </button>
           </div>
+
+          {showTextInputs && (
+            <div className={styles.drawer}>
+              <h3>Enter Text</h3>
+              <div className={styles.labelInputDiv}>
+                <label>Line 1:</label>
+                <input value={textLine1} onChange={(e) => setTextLine1(e.target.value)} />
+              </div>
+              <div className={styles.labelInputDiv}>
+                <label>Line 2:</label>
+                <input value={textLine2} onChange={(e) => setTextLine2(e.target.value)} />
+              </div>
+            </div>
+          )}
 
           {showFonts && (
             <div className={styles.drawer}>
