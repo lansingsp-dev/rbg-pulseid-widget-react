@@ -18,7 +18,7 @@ function getColorCode(rgb, colors) {
 const App = () => {
   const [product, setProduct] = useState(null);
   const [templateOptions, setTemplateOptions] = useState([]);
-  const [textLine1, setTextLine1] = useState('');
+  const [textLine1, setTextLine1] = useState('My Custom Text');
   const [font, setFont] = useState('Block');
   const [color, setColor] = useState('rgb(153, 0, 0)'); // instead of hex
   const [variantId, setVariantId] = useState(null);
@@ -107,6 +107,7 @@ const App = () => {
       + `&Personalizations[0].Text=${encodeURIComponent(textLine1)}`
       + `&Personalizations[0].IsText=true`
       + `&Personalizations[0].TextColour=${textColorCode}`
+      + `&Personalizations[0].FontName=${encodeURIComponent(font)}`
       + `&Transparency=${transparency}`
       //+ `&ProductLocationID=${locationId}`
       + `&RenderOnProduct=true`
