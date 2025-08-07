@@ -232,7 +232,7 @@ useEffect(() => {
             <h2>Customize Your Product</h2>
 
             <div className={styles.labelInputDiv}>
-              <label>Text: </label>
+              <label className={styles.textLabel}>Text:</label>
               <input value={textLine1} onChange={(e) => setTextLine1(e.target.value)} />
             </div>
 
