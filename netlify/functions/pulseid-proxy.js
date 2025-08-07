@@ -1,5 +1,7 @@
 export async function handler(event, context) {
     console.log('Proxy called with event:', event.queryStringParameters);
+    console.log('');
+
 
     const BASE_URL = "https://rockbottom.pulseidconnect.com/api";
     const API_KEY = "pulseRockBottomGolf";

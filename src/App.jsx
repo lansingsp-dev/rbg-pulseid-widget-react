@@ -21,7 +21,7 @@ const App = () => {
   const [templateOptions, setTemplateOptions] = useState([]);
   const [textLine1, setTextLine1] = useState('My Custom Text');
   const [font, setFont] = useState('Block');
-  const [color, setColor] = useState('rgb(153, 0, 0)'); // instead of hex
+  const [color, setColor] = useState(null);
   const [variantId, setVariantId] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [availableFonts, setAvailableFonts] = useState([]);
@@ -89,35 +89,35 @@ const App = () => {
     fetchColors();
   }, []);
 
-  useEffect(() => {
-    if (!textLine1 || !product) return;
+useEffect(() => {
+  if (!textLine1 || !product || !color) return;
 
-      const debouncedRender = debounce(() => {
-      const templateCode = 'Template Emb Test';
-      const productCode = product?.Code;
-      const transparency = "%2300FFFFFF";
-      const textColorCode = getColorCode(color, availableColors);
+    const debouncedRender = debounce(() => {
+    const templateCode = 'Template Emb Test';
+    const productCode = product?.Code;
+    const transparency = "%2300FFFFFF";
+    const textColorCode = getColorCode(color, availableColors);
 
-      const renderUrl = `${apiBase}?endpoint=/api/Orders/Render`
-        + `&OrderType=embroidery-template`
-        + `&ProductCode=${productCode}`
-        + `&TemplateCode=${templateCode}`
-        + `&Personalizations[0].ElementName=Line1`
-        + `&Personalizations[0].Text=${encodeURIComponent(textLine1)}`
-        + `&Personalizations[0].IsText=true`
-        + `&Personalizations[0].TextColour=${textColorCode}`
-        + `&Personalizations[0].FontName=${encodeURIComponent(font)}`
-        + `&Transparency=${transparency}`
-        + `&RenderOnProduct=true`
-        + `&Dpi=72`;
+    const renderUrl = `${apiBase}?endpoint=/api/Orders/Render`
+      + `&OrderType=embroidery-template`
+      + `&ProductCode=${productCode}`
+      + `&TemplateCode=${templateCode}`
+      + `&Personalizations[0].ElementName=Line1`
+      + `&Personalizations[0].Text=${encodeURIComponent(textLine1)}`
+      + `&Personalizations[0].IsText=true`
+      + `&Personalizations[0].TextColour=${textColorCode}`
+      + `&Personalizations[0].FontName=${encodeURIComponent(font)}`
+      + `&Transparency=${transparency}`
+      + `&RenderOnProduct=true`
+      + `&Dpi=72`;
 
-      setPreviewUrl(renderUrl);
-      console.log("Preview URL:", renderUrl);
-    }, 500); // delay in ms
+    setPreviewUrl(renderUrl);
+    console.log("Preview URL:", renderUrl);
+  }, 500); // delay in ms
 
-    debouncedRender();
-    return () => debouncedRender.cancel();
-  }, [textLine1, font, color, product]);
+  debouncedRender();
+  return () => debouncedRender.cancel();
+}, [textLine1, font, color, product]);
 
   return (
     <div className={isMobile ? styles.appContainer : styles.container}>
