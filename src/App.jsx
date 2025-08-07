@@ -257,10 +257,12 @@ const App = () => {
             </div>
 
             <div className={styles.labelInputDiv}>
-              <label className={styles.colorLabel}>Color: </label>
-              <span>
-                {availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}
-              </span>
+              <div className={styles.inlineLabel}>
+                <label className={styles.colorLabel}>Color:</label>
+                <span className={styles.selectedColorName}>
+                  {availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}
+                </span>
+              </div>
               <div className={styles.colorButtonRow}>
                 {availableColors.map((c) => {
                   const rgb = `rgb(${c.Red}, ${c.Green}, ${c.Blue})`;
