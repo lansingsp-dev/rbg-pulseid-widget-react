@@ -3,6 +3,18 @@ import styles from './App.module.css';
 
 const apiBase = '/api/pulseid-proxy'; // Netlify proxy path
 
+function rgbToArgbHex(rgb) {
+  const result = rgb.match(/\d+/g);
+  if (!result) return '#00FFFFFF'; // fallback white
+  const [r, g, b] = result.map(n => parseInt(n).toString(16).padStart(2, '0'));
+  return `#00${r}${g}${b}`.toUpperCase(); // alpha = 00 (fully transparent)
+}
+
+function getColorCode(rgb, colors) {
+  const match = colors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === rgb);
+  return match?.Name || '';
+}
+
 const App = () => {
   const [product, setProduct] = useState(null);
   const [templateOptions, setTemplateOptions] = useState([]);
@@ -38,6 +50,7 @@ const App = () => {
         const res = await fetch(`${apiBase}?endpoint=/api/Designer/GetProduct&variantId=${vId}`, {
           cache: 'no-store'
         });
+        console.log("GetProduct URL:", `${apiBase}?endpoint=/api/Designer/GetProduct&variantId=${vId}`);
         const text = await res.text();
         console.log('Raw response:', text);
         const data = JSON.parse(text);
@@ -77,6 +90,32 @@ const App = () => {
     fetchColors();
   }, []);
 
+  useEffect(() => {
+    if (!textLine1 || !product) return;
+
+    const templateCode = 'Template Emb Test';
+    const productCode = product?.Code;
+    const locationId = 'LocationName';
+    const transparency = "%2300FFFFFF";
+    const textColorCode = getColorCode(color, availableColors);
+
+    const renderUrl = `${apiBase}?endpoint=/api/Orders/Render`
+      + `&OrderType=embroidery-template`
+      + `&ProductCode=${productCode}`
+      + `&TemplateCode=${templateCode}`
+      + `&Personalizations[0].ElementName=Line1`
+      + `&Personalizations[0].Text=${encodeURIComponent(textLine1)}`
+      + `&Personalizations[0].IsText=true`
+      + `&Personalizations[0].TextColour=${textColorCode}`
+      + `&Transparency=${transparency}`
+      //+ `&ProductLocationID=${locationId}`
+      + `&RenderOnProduct=true`
+      + `&Dpi=72`;
+
+    setPreviewUrl(renderUrl);
+    console.log("Preview URL:", renderUrl);
+  }, [textLine1, font, color, product]);
+
   return (
     <div className={isMobile ? styles.appContainer : styles.container}>
       {isMobile ? (
@@ -84,7 +123,7 @@ const App = () => {
         <>
           <div className={styles.fullscreenPreview}>
             <img
-              src={product?.ProductPreviewURL}
+              src={previewUrl?.startsWith('data:image') ? previewUrl : (previewUrl || product?.ProductPreviewURL)}
               alt="Bag Preview"
               className={styles.fullscreenImage}
             />
@@ -180,7 +219,7 @@ const App = () => {
         <>
           <div className={styles.imageContainer}>
             <img
-              src={product?.ProductPreviewURL}
+              src={previewUrl?.startsWith('data:image') ? previewUrl : (previewUrl || product?.ProductPreviewURL)}
               alt="Bag Preview"
               className={styles.image}
             />
