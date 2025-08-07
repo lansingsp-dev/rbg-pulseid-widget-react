@@ -47,9 +47,7 @@ const App = () => {
 
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`${apiBase}?endpoint=/api/Designer/GetProduct&variantId=${vId}`, {
-          cache: 'no-store'
-        });
+        const res = await fetch(`${apiBase}?endpoint=/api/Designer/GetProduct&variantId=${vId}`);
         console.log("GetProduct URL:", `${apiBase}?endpoint=/api/Designer/GetProduct&variantId=${vId}`);
         const text = await res.text();
         console.log('Raw response:', text);
@@ -62,7 +60,7 @@ const App = () => {
 
     const fetchFonts = async () => {
       try {
-        const res = await fetch(`${apiBase}?endpoint=/api/Fonts/GetFonts&dataView=1&getAllowedChars=true`, { cache: 'no-store' });
+        const res = await fetch(`${apiBase}?endpoint=/api/Fonts/GetFonts&dataView=1&getAllowedChars=true`);
         const data = await res.json();
         setAvailableFonts(data);
       } catch (err) {
@@ -72,7 +70,7 @@ const App = () => {
 
     const fetchColors = async () => {
       try {
-        const res = await fetch(`${apiBase}?endpoint=/api/Colours/GetColours`, { cache: 'no-store' });
+        const res = await fetch(`${apiBase}?endpoint=/api/Colours/GetColours`);
         const data = await res.json();
         setAvailableColors(data);
         const whiteColor = data.find(c => c.Code === "1801");
