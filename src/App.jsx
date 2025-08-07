@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import debounce from 'lodash.debounce';
 import styles from './App.module.css';
 
 const apiBase = '/api/pulseid-proxy'; // Netlify proxy path
@@ -91,28 +92,31 @@ const App = () => {
   useEffect(() => {
     if (!textLine1 || !product) return;
 
-    const templateCode = 'Template Emb Test';
-    const productCode = product?.Code;
-    const locationId = 'LocationName';
-    const transparency = "%2300FFFFFF";
-    const textColorCode = getColorCode(color, availableColors);
+      const debouncedRender = debounce(() => {
+      const templateCode = 'Template Emb Test';
+      const productCode = product?.Code;
+      const transparency = "%2300FFFFFF";
+      const textColorCode = getColorCode(color, availableColors);
 
-    const renderUrl = `${apiBase}?endpoint=/api/Orders/Render`
-      + `&OrderType=embroidery-template`
-      + `&ProductCode=${productCode}`
-      + `&TemplateCode=${templateCode}`
-      + `&Personalizations[0].ElementName=Line1`
-      + `&Personalizations[0].Text=${encodeURIComponent(textLine1)}`
-      + `&Personalizations[0].IsText=true`
-      + `&Personalizations[0].TextColour=${textColorCode}`
-      + `&Personalizations[0].FontName=${encodeURIComponent(font)}`
-      + `&Transparency=${transparency}`
-      //+ `&ProductLocationID=${locationId}`
-      + `&RenderOnProduct=true`
-      + `&Dpi=72`;
+      const renderUrl = `${apiBase}?endpoint=/api/Orders/Render`
+        + `&OrderType=embroidery-template`
+        + `&ProductCode=${productCode}`
+        + `&TemplateCode=${templateCode}`
+        + `&Personalizations[0].ElementName=Line1`
+        + `&Personalizations[0].Text=${encodeURIComponent(textLine1)}`
+        + `&Personalizations[0].IsText=true`
+        + `&Personalizations[0].TextColour=${textColorCode}`
+        + `&Personalizations[0].FontName=${encodeURIComponent(font)}`
+        + `&Transparency=${transparency}`
+        + `&RenderOnProduct=true`
+        + `&Dpi=72`;
 
-    setPreviewUrl(renderUrl);
-    console.log("Preview URL:", renderUrl);
+      setPreviewUrl(renderUrl);
+      console.log("Preview URL:", renderUrl);
+    }, 500); // delay in ms
+
+    debouncedRender();
+    return () => debouncedRender.cancel();
   }, [textLine1, font, color, product]);
 
   return (
