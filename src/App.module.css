@@ -13,6 +13,12 @@
   --shadow-soft: 0 -2px 6px rgba(0, 0, 0, 0.1);
   --shadow-drawer: 0 -2px 8px rgba(0, 0, 0, 0.15);
   --swatch: var(--rbg-white); /* default swatch color */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --section-gap-mobile: 1rem;
+  --section-gap-desktop: 1.75rem;
 }
 
 html, body {
@@ -51,12 +57,11 @@ html, body {
 }
 
 .labelInputDiv {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--section-gap-mobile);
     display: flex;
     flex-direction: column;
 }
 
-/* Consolidated label styles */
 .textLabel,
 .fontLabel,
 .colorLabel {
@@ -66,9 +71,6 @@ html, body {
   color: var(--rbg-dark);
 }
 
-/* keep extra top spacing where needed */
-.fontLabel,
-.colorLabel { margin-top: 1rem; }
 
 .fontButtonRow {
   display: flex;
@@ -77,7 +79,6 @@ html, body {
   align-items: center;
 }
 
-/* Consolidated font button styles */
 .fontButton,
 .fontButtonSelected {
   padding: 0.25rem 0.5rem;
@@ -138,6 +139,10 @@ html, body {
 
   .image {
     max-width: 400px;
+  }
+
+  .labelInputDiv {
+    margin-bottom: var(--section-gap-desktop);
   }
 }
 .appContainer {

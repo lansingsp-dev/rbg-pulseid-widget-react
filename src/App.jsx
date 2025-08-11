@@ -286,8 +286,11 @@ const App = () => {
 
                     <div className={styles.controlContainer}>
                         <h2 className={styles.sectionTitle}>Customize Your Product</h2>
-                        <label className={styles.textLabel}>Text:</label>
-                        <TextInput value={textLine1} onChange={e => setTextLine1(e.target.value)} />
+
+                        <div className={styles.labelInputDiv}>
+                            <label className={styles.textLabel}>Text:</label>
+                            <TextInput value={textLine1} onChange={e => setTextLine1(e.target.value)} />
+                        </div>
 
                         <div className={styles.labelInputDiv}>
                             <label className={styles.fontLabel}>Font:</label>
