@@ -91,11 +91,25 @@ html, body {
   color: var(--rbg-dark);
 }
 
-.fontButton { border: 1px solid var(--rbg-light); }
-.fontButton:hover { border-color: var(--rbg-primary); }
-.fontButton:focus { outline: 2px solid var(--rbg-primary); outline-offset: 1px; }
 
-.fontButtonSelected { border: 2px solid var(--rbg-primary); }
+/* Unified interactive states for font & color buttons */
+.fontButton,
+.colorButton {
+  border: 1px solid var(--rbg-light);
+}
+.fontButton:hover,
+.colorButton:hover {
+  border-color: var(--rbg-primary);
+}
+.fontButton:focus-visible,
+.colorButton:focus-visible {
+  outline: 2px solid var(--rbg-primary);
+  outline-offset: 1px;
+}
+.fontButtonSelected,
+.colorButtonSelected {
+  border: 2px solid var(--rbg-primary);
+}
 
 
 .colorButtonRow {
@@ -117,11 +131,6 @@ html, body {
   background: var(--swatch, var(--rbg-white));
 }
 
-.colorButton { border: 1px solid var(--rbg-light); }
-.colorButton:hover { border-color: var(--rbg-primary); }
-.colorButton:focus { outline: 2px solid var(--rbg-primary); outline-offset: 1px; }
-
-.colorButtonSelected { border: 2px solid var(--rbg-primary); }
 
 @media screen and (min-width: 768px) {
   .container {
@@ -209,6 +218,12 @@ html, body {
   max-height: 0;
   opacity: 0;
   border-top: 3px solid var(--rbg-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer {
+    transition: none;
+  }
 }
 
 .drawerVisible {
