@@ -2,14 +2,30 @@ import React, {useEffect, useState} from 'react';
 import debounce from 'lodash.debounce';
 import styles from './App.module.css';
 
-const apiBase = '/api/pulseid-proxy'; // Netlify proxy path
+/**
+ * @typedef {Object} PulseFont
+ * @property {number|string} Id
+ * @property {string} FontName
+ * @property {string} FontPreviewUrl
+ */
 
-function rgbToArgbHex(rgb) {
-    const result = rgb.match(/\d+/g);
-    if (!result) return '#00FFFFFF'; // fallback white
-    const [r, g, b] = result.map(n => parseInt(n).toString(16).padStart(2, '0'));
-    return `#00${r}${g}${b}`.toUpperCase(); // alpha = 00 (fully transparent)
-}
+/**
+ * @typedef {Object} PulseColour
+ * @property {number|string} Id
+ * @property {string} Code
+ * @property {number} Red
+ * @property {number} Green
+ * @property {number} Blue
+ * @property {string} Name
+ */
+
+/**
+ * @typedef {Object} PulseProduct
+ * @property {string} Code
+ * @property {string} ProductPreviewURL
+ */
+
+const apiBase = '/api/pulseid-proxy'; // Netlify proxy path
 
 function getColorCode(rgb, colors) {
     const match = colors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === rgb);
@@ -21,8 +37,14 @@ const PreviewImage = ({src, alt, className}) => (
     <img src={src} alt={alt} className={className}/>
 );
 
-// Font selector component
-const FontSelector = ({fonts, selectedFont, onSelect, styles}) => (
+/**
+ * @param {{
+ *  fonts: PulseFont[],
+ *  selectedFont: string,
+ *  onSelect: (name: string) => void
+ * }} props
+ */
+const FontSelector = ({fonts, selectedFont, onSelect}) => (
     <div className={styles.fontButtonRow}>
         {fonts.map((f) => {
             const isSelected = selectedFont === f.FontName;
@@ -43,10 +65,16 @@ const FontSelector = ({fonts, selectedFont, onSelect, styles}) => (
     </div>
 );
 
-// Color selector component
-const ColorSelector = ({colors, selectedColor, onSelect, styles}) => (
+/**
+ * @param {{
+ *  colors: PulseColour[],
+ *  selectedColor: string|null,
+ *  onSelect: (rgb: string) => void
+ * }} props
+ */
+const ColorSelector = ({colors, selectedColor, onSelect}) => (
     <div className={styles.colorButtonRow}>
-        {colors.map((c) => {
+        {colors.map(/** @param {PulseColour} c */ (c) => {
             const rgb = `rgb(${c.Red}, ${c.Green}, ${c.Blue})`;
             const isSelected = selectedColor === rgb;
             return (
@@ -54,7 +82,7 @@ const ColorSelector = ({colors, selectedColor, onSelect, styles}) => (
                     key={c.Id}
                     onClick={() => onSelect(rgb)}
                     title={c.Name}
-                    style={{backgroundColor: rgb}}
+                    style={/** @type {import('react').CSSProperties} */ ({ '--swatch': rgb })}
                     className={isSelected ? styles.colorButtonSelected : styles.colorButton}
                 />
             );
@@ -63,22 +91,20 @@ const ColorSelector = ({colors, selectedColor, onSelect, styles}) => (
 );
 
 // Text input component
-const TextInput = ({value, onChange, styles}) => (
-    <div className={styles.labelInputDiv}>
-        <label>Text:</label>
-        <input value={value} onChange={onChange}/>
-    </div>
+const TextInput = ({value, onChange}) => (
+    <input className={styles.textInput} value={value} onChange={onChange} />
 );
 
 const App = () => {
+    /** @type {[PulseProduct|null, Function]} */
     const [product, setProduct] = useState(null);
-    const [templateOptions, setTemplateOptions] = useState([]);
     const [textLine1, setTextLine1] = useState('My Custom Text');
     const [font, setFont] = useState('Block');
     const [color, setColor] = useState(null);
-    const [variantId, setVariantId] = useState(null);
     const [previewUrl, setPreviewUrl] = useState('');
+    /** @type {[PulseFont[], Function]} */
     const [availableFonts, setAvailableFonts] = useState([]);
+    /** @type {[PulseColour[], Function]} */
     const [availableColors, setAvailableColors] = useState([]);
 
     const [showFonts, setShowFonts] = useState(false);
@@ -96,7 +122,6 @@ const App = () => {
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const vId = params.get('variantid');
-        setVariantId(vId);
 
         if (!vId) return;
 
@@ -136,9 +161,9 @@ const App = () => {
             }
         };
 
-        fetchProduct();
-        fetchFonts();
-        fetchColors();
+        void fetchProduct();
+        void fetchFonts();
+        void fetchColors();
     }, []);
 
     useEffect(() => {
@@ -187,12 +212,22 @@ const App = () => {
                         <button
                             className={styles.toggleButton}
                             onClick={() => {
+                                setShowTextInputs(prev => !prev);
+                                setShowFonts(false);
+                                setShowColors(false);
+                            }}
+                        >
+                            Text
+                        </button>
+                        <button
+                            className={styles.toggleButton}
+                            onClick={() => {
                                 setShowFonts(prev => !prev);
                                 setShowColors(false);
                                 setShowTextInputs(false);
                             }}
                         >
-                            Fonts
+                            Font
                         </button>
                         <button
                             className={styles.toggleButton}
@@ -202,45 +237,39 @@ const App = () => {
                                 setShowTextInputs(false);
                             }}
                         >
-                            Colors
-                        </button>
-                        <button
-                            className={styles.toggleButton}
-                            onClick={() => {
-                                setShowTextInputs(prev => !prev);
-                                setShowFonts(false);
-                                setShowColors(false);
-                            }}
-                        >
-                            Add Text
+                            Color
                         </button>
                     </div>
 
                     <div className={`${styles.drawer} ${showTextInputs ? styles.drawerVisible : styles.drawerHidden}`}>
-                        <h3>Enter Text</h3>
-                        <TextInput value={textLine1} onChange={e => setTextLine1(e.target.value)} styles={styles}/>
+                        <div className={styles.labelInputDiv}>
+                            <label className={styles.textLabel}>Text:</label>
+                            <TextInput value={textLine1} onChange={e => setTextLine1(e.target.value)} />
+                        </div>
                     </div>
 
                     <div className={`${styles.drawer} ${showFonts ? styles.drawerVisible : styles.drawerHidden}`}>
-                        <h3>Select Font</h3>
-                        <FontSelector
-                            fonts={availableFonts}
-                            selectedFont={font}
-                            onSelect={setFont}
-                            styles={styles}
-                        />
+                        <div className={styles.labelInputDiv}>
+                            <label className={styles.fontLabel}>Font:</label>
+                            <FontSelector
+                                fonts={availableFonts}
+                                selectedFont={font}
+                                onSelect={setFont}
+                            />
+                        </div>
                     </div>
 
                     <div className={`${styles.drawer} ${showColors ? styles.drawerVisible : styles.drawerHidden}`}>
-                        <div>
-                            <strong>Select Color:</strong>{" "}
-                            {availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}
+                        <div className={styles.inlineLabel}>
+                            <label className={styles.colorLabel}>Color:</label>
+                            <span className={styles.selectedColorName}>
+                              {availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}
+                            </span>
                         </div>
                         <ColorSelector
                             colors={availableColors}
                             selectedColor={color}
                             onSelect={setColor}
-                            styles={styles}
                         />
                     </div>
                 </>
@@ -256,8 +285,9 @@ const App = () => {
                     </div>
 
                     <div className={styles.controlContainer}>
-                        <h2>Customize Your Product</h2>
-                        <TextInput value={textLine1} onChange={e => setTextLine1(e.target.value)} styles={styles}/>
+                        <h2 className={styles.sectionTitle}>Customize Your Product</h2>
+                        <label className={styles.textLabel}>Text:</label>
+                        <TextInput value={textLine1} onChange={e => setTextLine1(e.target.value)} />
 
                         <div className={styles.labelInputDiv}>
                             <label className={styles.fontLabel}>Font:</label>
@@ -265,7 +295,6 @@ const App = () => {
                                 fonts={availableFonts}
                                 selectedFont={font}
                                 onSelect={setFont}
-                                styles={styles}
                             />
                         </div>
 
@@ -280,7 +309,6 @@ const App = () => {
                                 colors={availableColors}
                                 selectedColor={color}
                                 onSelect={setColor}
-                                styles={styles}
                             />
                         </div>
                     </div>
