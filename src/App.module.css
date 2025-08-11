@@ -56,20 +56,19 @@ html, body {
     flex-direction: column;
 }
 
-.fontLabel {
+/* Consolidated label styles */
+.textLabel,
+.fontLabel,
+.colorLabel {
   display: block;
   font-weight: 700;
   margin-bottom: 0.5rem;
   color: var(--rbg-dark);
-  margin-top: 1rem;
 }
 
-.textLabel {
-  display: block;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: var(--rbg-dark);
-}
+/* keep extra top spacing where needed */
+.fontLabel,
+.colorLabel { margin-top: 1rem; }
 
 .fontButtonRow {
   display: flex;
@@ -78,28 +77,10 @@ html, body {
   align-items: center;
 }
 
-.fontButton {
-  padding: 0.25rem 0.5rem;
-  border: 1px solid var(--rbg-light);
-  border-radius: var(--radius-md);
-  background-color: var(--rbg-white);
-  cursor: pointer;
-  font-size: 14px;
-  width: 90px;
-  height: 60px;
-  color: var(--rbg-dark);
-}
-.fontButton:hover {
-  border-color: var(--rbg-primary);
-}
-.fontButton:focus {
-  outline: 2px solid var(--rbg-primary);
-  outline-offset: 1px;
-}
-
+/* Consolidated font button styles */
+.fontButton,
 .fontButtonSelected {
   padding: 0.25rem 0.5rem;
-  border: 2px solid var(--rbg-primary);
   border-radius: var(--radius-md);
   background-color: var(--rbg-white);
   cursor: pointer;
@@ -109,11 +90,12 @@ html, body {
   color: var(--rbg-dark);
 }
 
-.colorLabel {
-  font-weight: 700;
-  color: var(--rbg-dark);
-  margin-top: 1rem;
-}
+.fontButton { border: 1px solid var(--rbg-light); }
+.fontButton:hover { border-color: var(--rbg-primary); }
+.fontButton:focus { outline: 2px solid var(--rbg-primary); outline-offset: 1px; }
+
+.fontButtonSelected { border: 2px solid var(--rbg-primary); }
+
 
 .colorButtonRow {
   display: flex;
@@ -123,32 +105,22 @@ html, body {
   align-items: center;
 }
 
-.colorButton {
-  border: 1px solid var(--rbg-light);
+/* Consolidated color button styles */
+.colorButton,
+.colorButtonSelected {
   width: 40px;
   height: 40px;
   border-radius: 4px;
   cursor: pointer;
   position: relative;
   background: var(--swatch, var(--rbg-white));
-}
-.colorButton:hover {
-  border-color: var(--rbg-primary);
-}
-.colorButton:focus {
-  outline: 2px solid var(--rbg-primary);
-  outline-offset: 1px;
 }
 
-.colorButtonSelected {
-  border: 2px solid var(--rbg-primary);
-  width: 40px;
-  height: 40px;
-  border-radius: 4px;
-  cursor: pointer;
-  position: relative;
-  background: var(--swatch, var(--rbg-white));
-}
+.colorButton { border: 1px solid var(--rbg-light); }
+.colorButton:hover { border-color: var(--rbg-primary); }
+.colorButton:focus { outline: 2px solid var(--rbg-primary); outline-offset: 1px; }
+
+.colorButtonSelected { border: 2px solid var(--rbg-primary); }
 
 @media screen and (min-width: 768px) {
   .container {
@@ -185,11 +157,6 @@ html, body {
   justify-content: center;
 }
 
-.fullscreenImage {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
 
 .floatingControls {
   position: absolute;
@@ -248,7 +215,8 @@ html, body {
   max-height: 0;
   opacity: 0;
 }
-.fontPreviewImage {
+.fontPreviewImage,
+.fullscreenImage {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
