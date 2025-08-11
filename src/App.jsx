@@ -305,8 +305,8 @@ const App = () => {
                             <div className={styles.inlineLabel}>
                                 <label className={styles.colorLabel}>Color:</label>
                                 <span className={styles.selectedColorName}>
-                  {availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}
-                </span>
+                                    {availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}
+                                </span>
                             </div>
                             <ColorSelector
                                 colors={availableColors}
