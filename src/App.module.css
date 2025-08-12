@@ -184,7 +184,7 @@ html, body {
   border-top: 3px solid var(--rbg-primary);
 }
 
-.toggleButton {
+.drawerToggleButton {
   padding: 0.5rem 1rem;
   border: 1px solid var(--rbg-light);
   border-radius: var(--radius-md);
@@ -194,10 +194,10 @@ html, body {
   min-width: 100px;
   color: var(--rbg-dark);
 }
-.toggleButton:hover {
+.drawerToggleButton:hover {
   border-color: var(--rbg-primary);
 }
-.toggleButton:focus {
+.drawerToggleButton:focus {
   outline: 2px solid var(--rbg-primary);
   outline-offset: 1px;
 }

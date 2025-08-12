@@ -227,19 +227,19 @@ const App = () => {
 
                     <div className={styles.floatingControls}>
                         <button
-                            className={styles.toggleButton}
+                            className={styles.drawerToggleButton}
                             onClick={() => toggleSection('text')}
                         >
                             Text
                         </button>
                         <button
-                            className={styles.toggleButton}
+                            className={styles.drawerToggleButton}
                             onClick={() => toggleSection('font')}
                         >
                             Font
                         </button>
                         <button
-                            className={styles.toggleButton}
+                            className={styles.drawerToggleButton}
                             onClick={() => toggleSection('color')}
                         >
                             Color
