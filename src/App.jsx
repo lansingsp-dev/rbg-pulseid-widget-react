@@ -28,6 +28,7 @@ import styles from './App.module.css';
 const apiBase = '/api/pulseid-proxy'; // Netlify proxy path
 
 const TEMPLATE_CODE = 'Template Emb Test';
+const FONT_TYPE_FILTER = 'embroidery-template';
 const RENDER_DEBOUNCE_MS = 500;
 
 function getSelectedColorName(colors, rgb) {
@@ -155,7 +156,7 @@ const App = () => {
                 const data = await res.json();
                 const filteredFonts = data.filter(f =>
                     typeof f.FontType === 'string' &&
-                    f.FontType.split(',').map(type => type.trim()).includes('embroidery-template')
+                    f.FontType.split(',').map(type => type.trim()).includes(FONT_TYPE_FILTER)
                 );
                 setAvailableFonts(filteredFonts);
             } catch (err) {
