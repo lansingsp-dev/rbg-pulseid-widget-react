@@ -27,6 +27,13 @@ import styles from './App.module.css';
 
 const apiBase = '/api/pulseid-proxy'; // Netlify proxy path
 
+const TEMPLATE_CODE = 'Template Emb Test';
+const RENDER_DEBOUNCE_MS = 500;
+
+function getSelectedColorName(colors, rgb) {
+    return colors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === rgb)?.Name.split(' - ')[1] || '';
+}
+
 function getColorCode(rgb, colors) {
     const match = colors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === rgb);
     return match?.Name || '';
@@ -113,6 +120,12 @@ const App = () => {
 
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+    const toggleSection = (section) => {
+        setShowTextInputs(section === 'text' ? prev => !prev : false);
+        setShowFonts(section === 'font' ? prev => !prev : false);
+        setShowColors(section === 'color' ? prev => !prev : false);
+    };
+
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
@@ -170,7 +183,6 @@ const App = () => {
         if (!textLine1 || !product || !color) return;
 
         const debouncedRender = debounce(() => {
-            const templateCode = 'Template Emb Test';
             const productCode = product?.Code;
             const transparency = "%2300FFFFFF";
             const textColorCode = getColorCode(color, availableColors);
@@ -178,7 +190,7 @@ const App = () => {
             const renderUrl = `${apiBase}?endpoint=/api/Orders/Render`
                 + `&OrderType=embroidery-template`
                 + `&ProductCode=${productCode}`
-                + `&TemplateCode=${templateCode}`
+                + `&TemplateCode=${TEMPLATE_CODE}`
                 + `&Personalizations[0].ElementName=Line1`
                 + `&Personalizations[0].Text=${encodeURIComponent(textLine1)}`
                 + `&Personalizations[0].IsText=true`
@@ -189,7 +201,7 @@ const App = () => {
                 + `&Dpi=72`;
 
             setPreviewUrl(renderUrl);
-        }, 500); // delay in ms
+        }, RENDER_DEBOUNCE_MS); // delay in ms
 
         debouncedRender();
         return () => debouncedRender.cancel();
@@ -211,31 +223,19 @@ const App = () => {
                     <div className={styles.floatingControls}>
                         <button
                             className={styles.toggleButton}
-                            onClick={() => {
-                                setShowTextInputs(prev => !prev);
-                                setShowFonts(false);
-                                setShowColors(false);
-                            }}
+                            onClick={() => toggleSection('text')}
                         >
                             Text
                         </button>
                         <button
                             className={styles.toggleButton}
-                            onClick={() => {
-                                setShowFonts(prev => !prev);
-                                setShowColors(false);
-                                setShowTextInputs(false);
-                            }}
+                            onClick={() => toggleSection('font')}
                         >
                             Font
                         </button>
                         <button
                             className={styles.toggleButton}
-                            onClick={() => {
-                                setShowColors(prev => !prev);
-                                setShowFonts(false);
-                                setShowTextInputs(false);
-                            }}
+                            onClick={() => toggleSection('color')}
                         >
                             Color
                         </button>
@@ -263,7 +263,7 @@ const App = () => {
                         <div className={styles.inlineLabel}>
                             <label className={styles.sectionLabel}>Color:</label>
                             <span className={styles.selectedColorName}>
-                              {availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}
+                              {getSelectedColorName(availableColors, color)}
                             </span>
                         </div>
                         <ColorSelector
@@ -305,7 +305,7 @@ const App = () => {
                             <div className={styles.inlineLabel}>
                                 <label className={styles.sectionLabel}>Color:</label>
                                 <span className={styles.selectedColorName}>
-                                    {availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}
+                                    {getSelectedColorName(availableColors, color)}
                                 </span>
                             </div>
                             <ColorSelector
