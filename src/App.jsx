@@ -151,9 +151,13 @@ const App = () => {
 
         const fetchFonts = async () => {
             try {
-                const res = await fetch(`${apiBase}?endpoint=/api/Fonts/GetFonts&dataView=1&getAllowedChars=true`);
+                const res = await fetch(`${apiBase}?endpoint=/api/Fonts/GetFonts`);
                 const data = await res.json();
-                setAvailableFonts(data);
+                const filteredFonts = data.filter(f =>
+                    typeof f.FontType === 'string' &&
+                    f.FontType.split(',').map(type => type.trim()).includes('embroidery-template')
+                );
+                setAvailableFonts(filteredFonts);
             } catch (err) {
                 console.error('Failed to fetch fonts:', err);
             }
