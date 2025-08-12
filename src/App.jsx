@@ -243,14 +243,14 @@ const App = () => {
 
                     <div className={`${styles.drawer} ${showTextInputs ? styles.drawerVisible : styles.drawerHidden}`}>
                         <div className={styles.labelInputDiv}>
-                            <label className={styles.textLabel}>Text:</label>
+                            <label className={styles.sectionLabel}>Text:</label>
                             <TextInput value={textLine1} onChange={e => setTextLine1(e.target.value)} />
                         </div>
                     </div>
 
                     <div className={`${styles.drawer} ${showFonts ? styles.drawerVisible : styles.drawerHidden}`}>
                         <div className={styles.labelInputDiv}>
-                            <label className={styles.fontLabel}>Font:</label>
+                            <label className={styles.sectionLabel}>Font:</label>
                             <FontSelector
                                 fonts={availableFonts}
                                 selectedFont={font}
@@ -261,7 +261,7 @@ const App = () => {
 
                     <div className={`${styles.drawer} ${showColors ? styles.drawerVisible : styles.drawerHidden}`}>
                         <div className={styles.inlineLabel}>
-                            <label className={styles.colorLabel}>Color:</label>
+                            <label className={styles.sectionLabel}>Color:</label>
                             <span className={styles.selectedColorName}>
                               {availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}
                             </span>
@@ -288,12 +288,12 @@ const App = () => {
                         <h2 className={styles.sectionTitle}>Customize Your Product</h2>
 
                         <div className={styles.labelInputDiv}>
-                            <label className={styles.textLabel}>Text:</label>
+                            <label className={styles.sectionLabel}>Text:</label>
                             <TextInput value={textLine1} onChange={e => setTextLine1(e.target.value)} />
                         </div>
 
                         <div className={styles.labelInputDiv}>
-                            <label className={styles.fontLabel}>Font:</label>
+                            <label className={styles.sectionLabel}>Font:</label>
                             <FontSelector
                                 fonts={availableFonts}
                                 selectedFont={font}
@@ -303,7 +303,7 @@ const App = () => {
 
                         <div className={styles.labelInputDiv}>
                             <div className={styles.inlineLabel}>
-                                <label className={styles.colorLabel}>Color:</label>
+                                <label className={styles.sectionLabel}>Color:</label>
                                 <span className={styles.selectedColorName}>
                                     {availableColors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === color)?.Name.split(' - ')[1] || ''}
                                 </span>

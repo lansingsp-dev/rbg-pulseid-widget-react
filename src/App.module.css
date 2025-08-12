@@ -62,9 +62,7 @@ html, body {
     flex-direction: column;
 }
 
-.textLabel,
-.fontLabel,
-.colorLabel {
+.sectionLabel {
   display: block;
   font-weight: 700;
   margin-bottom: 0.5rem;
