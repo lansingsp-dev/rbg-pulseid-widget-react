@@ -210,12 +210,26 @@ html, body {
   background: var(--rbg-white);
   overflow-y: hidden;
   padding: 1rem;
-  box-shadow: var(--shadow-drawer);
+  box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.18), 0 -2px 8px rgba(0, 0, 0, 0.08);
   z-index: 20;
   transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
   max-height: 0;
   opacity: 0;
-  border-top: 3px solid var(--rbg-primary);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  -webkit-backdrop-filter: saturate(150%) blur(6px);
+  backdrop-filter: saturate(150%) blur(6px);
+}
+
+.drawer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
