@@ -195,7 +195,7 @@ const App = () => {
                 + `&Personalizations[0].Text=${encodeURIComponent(textLine1)}`
                 + `&Personalizations[0].IsText=true`
                 + `&Personalizations[0].TextColour=${textColorCode}`
-                + `&Personalizations[0].FontName=${encodeURIComponent(font)}`
+                + `&Personalizations[0].FontOverride=${encodeURIComponent(font)}`
                 + `&Transparency=${transparency}`
                 + `&RenderOnProduct=true`
                 + `&Dpi=72`;
