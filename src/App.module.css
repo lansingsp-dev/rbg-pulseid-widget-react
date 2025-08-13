@@ -235,12 +235,17 @@ html, body {
 }
 
 .drawerToggleButton {
+  display: flex;
+  flex-direction: column;  /* icon above label */
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
   padding: 0.5rem 1rem;
   border: 1px solid var(--rbg-light);
   border-radius: var(--radius-md);
   background: var(--rbg-white);
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1rem; /* base for label; icon is sized separately */
   min-width: 100px;
   color: var(--rbg-dark);
 }
@@ -250,6 +255,46 @@ html, body {
 .drawerToggleButton:focus {
   outline: 2px solid var(--rbg-primary);
   outline-offset: 1px;
+}
+
+.btnIcon {
+  display: block;
+  font-size: 1.25rem; /* icon size */
+  line-height: 1;
+}
+.btnLabel {
+  display: block;
+  font-size: 0.8rem;  /* smaller than icon */
+  line-height: 1.1;
+}
+.btnIcon svg {
+  display: block;
+  width: 1.25em;
+  height: 1.25em;
+  stroke: currentColor;
+  fill: none;
+}
+.btnIcon svg * {
+  vector-effect: non-scaling-stroke;
+}
+
+@media screen and (max-width: 767px) {
+  .floatingControls {
+    padding: 0.25rem;          /* tighter bar */
+    justify-content: space-between;
+    gap: 0.25rem;              /* small gap between buttons */
+    border-top-width: 2px;     /* slimmer divider */
+  }
+  .drawerToggleButton {
+    padding: 0.375rem 0.5rem;  /* smaller padding */
+    font-size: 0.9rem;         /* smaller text */
+    min-width: 64px;
+    height: 44px;
+    border-radius: 5px;        /* slightly tighter corners */
+  }
+  .btnIcon { font-size: 1.1rem; }
+  .btnLabel { font-size: 0.75rem; }
+  .btnIcon svg { width: 1.1em; height: 1.1em; }
 }
 
 .drawer {

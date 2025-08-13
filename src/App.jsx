@@ -654,26 +654,55 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                         <button
                             className={styles.drawerToggleButton}
                             onClick={() => toggleSection('template')}
+                            aria-label="Template"
                         >
-                            Template
+                            <span className={styles.btnIcon} aria-hidden>
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="3" y="3" width="8" height="8" rx="1"></rect>
+                                <rect x="13" y="3" width="8" height="8" rx="1"></rect>
+                                <rect x="3" y="13" width="8" height="8" rx="1"></rect>
+                                <rect x="13" y="13" width="8" height="8" rx="1"></rect>
+                              </svg>
+                            </span>
+                            <span className={styles.btnLabel}>Template</span>
                         </button>
                         <button
                             className={styles.drawerToggleButton}
                             onClick={() => toggleSection('text')}
+                            aria-label="Text"
                         >
-                            Text
+                            <span className={styles.btnIcon} aria-hidden>
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="4 7 4 4 20 4 20 7" />
+                                <line x1="9" y1="20" x2="15" y2="20" />
+                                <line x1="12" y1="4" x2="12" y2="20" />
+                              </svg>
+                            </span>
+                            <span className={styles.btnLabel}>Text</span>
                         </button>
                         <button
                             className={styles.drawerToggleButton}
                             onClick={() => toggleSection('font')}
+                            aria-label="Font"
                         >
-                            Font
+                            <span className={styles.btnIcon} aria-hidden>Aa</span>
+                            <span className={styles.btnLabel}>Font</span>
                         </button>
                         <button
                             className={styles.drawerToggleButton}
                             onClick={() => toggleSection('color')}
+                            aria-label="Color"
                         >
-                            Color
+                            <span className={styles.btnIcon} aria-hidden>
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M12 3a9 9 0 0 0-9 9c0 4.97 4.03 9 9 9h.8a2.7 2.7 0 0 0 0-5.4H11a1.6 1.6 0 0 1 0-3.2h2.2a4.8 4.8 0 0 0 0-9.6z" />
+                                <circle cx="7.5" cy="12" r="1.2" />
+                                <circle cx="9.5" cy="8" r="1.2" />
+                                <circle cx="14.5" cy="8" r="1.2" />
+                                <circle cx="17" cy="11" r="1.2" />
+                              </svg>
+                            </span>
+                            <span className={styles.btnLabel}>Color</span>
                         </button>
                     </div>
 
