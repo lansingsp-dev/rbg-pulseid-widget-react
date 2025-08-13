@@ -1,4 +1,13 @@
-export async function handler(event, context) {
+// noinspection JSUnusedGlobalSymbols
+/* global Buffer */
+/**
+ * Netlify function handler
+ * @param {import('@netlify/functions').HandlerEvent} event
+ * @param {import('@netlify/functions').HandlerContext} _context
+ * @returns {Promise<import('@netlify/functions').HandlerResponse>}
+ */
+export async function handler(event, _context) {
+    // noinspection JSUnresolvedVariable
     console.log('Proxy called with event:', event.queryStringParameters);
     console.log('');
 
@@ -7,7 +16,9 @@ export async function handler(event, context) {
     const API_KEY = "pulseRockBottomGolf";
     const COMPANY = "PersonalizeYourGear";
 
+    // noinspection JSUnresolvedVariable
     const method = event.httpMethod;
+    // noinspection JSUnresolvedVariable
     const { endpoint, ...queryParams } = event.queryStringParameters || {};
 
     if (!endpoint) {

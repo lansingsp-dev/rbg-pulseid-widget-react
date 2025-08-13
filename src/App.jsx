@@ -7,6 +7,7 @@ import styles from './App.module.css';
  * @property {number|string} Id
  * @property {string} FontName
  * @property {string} FontPreviewUrl
+ * @property {string=} FontType - comma-delimited, e.g. "embroidery-template, ..."
  */
 
 /**
@@ -26,11 +27,38 @@ import styles from './App.module.css';
  */
 
 /**
+ * @typedef {Object} TemplateElement
+ * @property {number|string=} Id
+ * @property {string=} ElementName - e.g., "Line1", "Line 2"
+ * @property {string=} Text - text content for this element
+ * @property {string=} FontOverride - Pulse font name for this element
+ * @property {string|number=} TextColour - may be a code (e.g., "1842"), "1842 - Royal Blue", or name
+ */
+
+/**
+ * @typedef {Object} TemplateFontMap
+ * @property {string=} PulseFont - Pulse font identifier/name
+ * @property {string=} FontName - UI/display font name used in app
+ */
+
+/**
  * @typedef {Object} PulseTemplate
  * @property {number|string} Id
  * @property {string} Code
  * @property {string} Name
- * @property {number=} TextLines
+ * @property {number=} TextLines - explicit count of supported text lines
+ * @property {number=} NumberOfTextLines - alternate field sometimes used by API
+ * @property {number=} Lines - another alias seen in API payloads
+ * @property {TemplateElement[]=} TemplateElements - element metadata including Text, ElementName, etc.
+ * @property {string=} FontOverride - template-level default font
+ * @property {string=} DefaultFont - alternate default font field
+ * @property {string=} Font - occasional alias
+ * @property {string|number=} TextColour - template-level default text color (code or name)
+ * @property {string|number=} DefaultColour - alternate color field
+ * @property {string|number=} Colour - occasional alias
+ * @property {string=} OrderType - e.g., 'embroidery-template'
+ * @property {TemplateFontMap[]=} TemplateFonts - mapping from PulseFont -> FontName
+ * @property {string=} ThumbnailUrl - cached/normalized thumbnail URL used by UI
  */
 
 const DEFAULT_TEMPLATE_CODE = 'RBG_Default_Template';
