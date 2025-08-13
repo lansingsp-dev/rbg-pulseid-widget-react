@@ -29,8 +29,10 @@ html, body {
 }
 
 .container {
-  flex-direction: column;
-  height: 100vh;
+  display: flex;
+  flex-direction: row;
+  height: 100vh;       /* fill the viewport */
+  overflow: hidden;    /* page doesn't scroll; right panel will */
   font-family: 'Mulish', sans-serif;
   color: var(--rbg-dark);
 }
@@ -46,12 +48,15 @@ html, body {
   width: 100%;
   max-width: 300px;
   height: auto;
+  max-height: 100vh;   /* never exceed viewport height */
+  object-fit: contain;
   margin: 0 auto;
 }
 
 .controlContainer {
   flex: 1 1 auto;
-  overflow-y: auto;
+  min-height: 0;       /* IMPORTANT: allow overflow in flex child */
+  overflow-y: auto;    /* scroll vertically when content is taller than viewport */
   padding: 0.5rem 1rem;
   color: var(--rbg-dark);
 }
@@ -169,13 +174,18 @@ html, body {
   .container {
     display: flex;
     flex-direction: row;
-    height: auto;
+    height: 100vh;      /* keep full-height on desktop too */
   }
 
   .imageContainer,
   .controlContainer {
     flex: 1 1 50%;
-    overflow: visible;
+    background: var(--rbg-white);
+  }
+
+  .controlContainer {
+    border-left: 1px solid var(--rbg-light); /* divider between bag and controls */
+    padding-left: 1.25rem; /* slight spacing from divider */
     background: var(--rbg-white);
   }
 
