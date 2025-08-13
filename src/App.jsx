@@ -123,13 +123,10 @@ function getElementNamesForTemplate(template, count) {
   while (ordered.length < count) ordered.push(`Line${ordered.length + 1}`);
   return ordered.slice(0, count);
 }
-function rgbOfColour(c) {
-    return `rgb(${c.Red}, ${c.Green}, ${c.Blue})`;
-}
 
 /**
  * Attempt to resolve a PulseColour to an RGB string from a variety of inputs
- * e.g. "1678 - Orange", "1678", "Orange", exact Name, Code, or an rgb()/hex string.
+ * e.g. "1678 - Orange", "1678", "Orange", exact Name, Code, or rgb()/hex string.
  * More tolerant implementation.
  */
 function findColourRgbFromTemplateValue(value, colours) {
@@ -152,11 +149,11 @@ function findColourRgbFromTemplateValue(value, colours) {
     let byName = colours.find(c => String(c.Name).toLowerCase() === s.toLowerCase());
     if (byName) return `rgb(${byName.Red}, ${byName.Green}, ${byName.Blue})`;
 
-    // Name contains / overlap (handles "1842 - Royal Blue" vs "Royal Blue")
+    // Name contains / overlap (handles "1842 - Royal Blue" vs. "Royal Blue")
     byName = colours.find(c => String(c.Name).toLowerCase().includes(s.toLowerCase()) || s.toLowerCase().includes(String(c.Name).toLowerCase()));
     if (byName) return `rgb(${byName.Red}, ${byName.Green}, ${byName.Blue})`;
 
-    // Try the part after " - " as a display name
+    // Try the part after "-" as a display name
     const parts = s.split(/\s*-\s*/);
     if (parts.length > 1) {
         const tail = parts.slice(1).join(' - ');
@@ -168,7 +165,7 @@ function findColourRgbFromTemplateValue(value, colours) {
 }
 
 /**
- * Initialize Text inputs, Font and Color from a template's TemplateElements
+ * Initialize Text inputs, Font, and Color from a template's TemplateElements
  * Falls back to line count heuristics when elements are missing.
  */
 function deriveControlsFromTemplate(template, colours) {
@@ -318,6 +315,28 @@ const TemplateSelector = ({templates, selectedTemplateCode, onSelect}) => (
         })}
     </div>
 );
+
+// Reusable Text Inputs section to avoid duplication
+const TextInputsSection = ({ selectedTemplate, textLines, setTextLines }) => {
+  const count = getTemplateLineCount(selectedTemplate ?? {});
+  if (count <= 0) return null;
+  return (
+    <div className={styles.labelInputDiv}>
+      <label className={styles.sectionLabel}>Text:</label>
+      {Array.from({ length: Math.min(MAX_TEXT_LINES, count) }).map((_, i) => (
+        <TextInput
+          key={i}
+          value={textLines[i] ?? ''}
+          onChange={(e) => {
+            const next = [...textLines];
+            next[i] = e.target.value;
+            setTextLines(next);
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
 const App = () => {
     /** @type {[PulseProduct|null, Function]} */
@@ -615,26 +634,11 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                     </div>
 
                     <div className={`${styles.drawer} ${showTextInputs ? styles.drawerVisible : styles.drawerHidden}`}>
-                        {(() => {
-                            const count = getTemplateLineCount(selectedTemplate ?? {});
-                            if (count <= 0) return null;
-                            return (
-                                <div className={styles.labelInputDiv}>
-                                    <label className={styles.sectionLabel}>Text:</label>
-                                    {Array.from({ length: Math.min(MAX_TEXT_LINES, count) }).map((_, i) => (
-                                        <TextInput
-                                            key={i}
-                                            value={textLines[i] ?? ''}
-                                            onChange={(e) => {
-                                                const next = [...textLines];
-                                                next[i] = e.target.value;
-                                                setTextLines(next);
-                                            }}
-                                        />
-                                    ))}
-                                </div>
-                            );
-                        })()}
+                        <TextInputsSection
+                          selectedTemplate={selectedTemplate}
+                          textLines={textLines}
+                          setTextLines={setTextLines}
+                        />
                     </div>
 
                     <div className={`${styles.drawer} ${showFonts ? styles.drawerVisible : styles.drawerHidden}`}>
@@ -685,26 +689,11 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                             />
                         </div>
 
-                        {(() => {
-                            const count = getTemplateLineCount(selectedTemplate ?? {});
-                            if (count <= 0) return null;
-                            return (
-                                <div className={styles.labelInputDiv}>
-                                    <label className={styles.sectionLabel}>Text:</label>
-                                    {Array.from({ length: Math.min(MAX_TEXT_LINES, count) }).map((_, i) => (
-                                        <TextInput
-                                            key={i}
-                                            value={textLines[i] ?? ''}
-                                            onChange={(e) => {
-                                                const next = [...textLines];
-                                                next[i] = e.target.value;
-                                                setTextLines(next);
-                                            }}
-                                        />
-                                    ))}
-                                </div>
-                            );
-                        })()}
+                        <TextInputsSection
+                          selectedTemplate={selectedTemplate}
+                          textLines={textLines}
+                          setTextLines={setTextLines}
+                        />
 
                         <div className={styles.labelInputDiv}>
                             <label className={styles.sectionLabel}>Font:</label>
