@@ -228,10 +228,11 @@ html, body {
   display: flex;
   justify-content: space-around;
   padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--rbg-white);
   z-index: 10;
-  box-shadow: var(--shadow-soft);
-  border-top: 3px solid var(--rbg-primary);
+  /* Visual separator: soft shadow + subtle inner divider, no border */
+  box-shadow: var(--shadow-soft), inset 0 1px 0 var(--rbg-light);
+  backdrop-filter: none;
 }
 
 .drawerToggleButton {
@@ -283,7 +284,7 @@ html, body {
     padding: 0.25rem;          /* tighter bar */
     justify-content: space-between;
     gap: 0.25rem;              /* small gap between buttons */
-    border-top-width: 2px;     /* slimmer divider */
+    /* border-top-width removed, no border for divider */
   }
   .drawerToggleButton {
     padding: 0.375rem 0.5rem;  /* smaller padding */
@@ -305,15 +306,14 @@ html, body {
   background: var(--rbg-white);
   overflow-y: hidden;
   padding: 1rem;
-  box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.18), 0 -2px 8px rgba(0, 0, 0, 0.08);
+  /* Add soft shadow and subtle interior separator, no backdrop blur */
+  box-shadow: var(--shadow-drawer), inset 0 1px 0 rgba(0,0,0,0.08);
   z-index: 20;
   transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
   max-height: 0;
   opacity: 0;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
-  -webkit-backdrop-filter: saturate(150%) blur(6px);
-  backdrop-filter: saturate(150%) blur(6px);
 }
 
 .drawer::before {
