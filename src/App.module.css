@@ -60,6 +60,7 @@ html, body {
     margin-bottom: var(--section-gap-mobile);
     display: flex;
     flex-direction: column;
+    gap: 0.5rem;
 }
 
 .sectionLabel {
@@ -89,23 +90,49 @@ html, body {
   color: var(--rbg-dark);
 }
 
+/* Template selector buttons (uses same sizing as font buttons) */
+.templateButton,
+.templateButtonSelected {
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-md);
+  background-color: var(--rbg-white);
+  cursor: pointer;
+  font-size: 14px;
+  width: 90px;
+  height: 60px;
+  color: var(--rbg-dark);
+  border: 1px solid var(--rbg-light);
+}
+.templateButtonSelected {
+  border: 2px solid var(--rbg-primary);
+}
 
-/* Unified interactive states for font & color buttons */
+.templatePreviewImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  background: var(--rbg-white);
+}
+
+/* Unified interactive states for font, color & template buttons */
 .fontButton,
-.colorButton {
+.colorButton,
+.templateButton {
   border: 1px solid var(--rbg-light);
 }
 .fontButton:hover,
-.colorButton:hover {
+.colorButton:hover,
+.templateButton:hover {
   border-color: var(--rbg-primary);
 }
 .fontButton:focus-visible,
-.colorButton:focus-visible {
+.colorButton:focus-visible,
+.templateButton:focus-visible {
   outline: 2px solid var(--rbg-primary);
   outline-offset: 1px;
 }
 .fontButtonSelected,
-.colorButtonSelected {
+.templateButtonSelected {
   border: 2px solid var(--rbg-primary);
 }
 
@@ -127,6 +154,14 @@ html, body {
   cursor: pointer;
   position: relative;
   background: var(--swatch, var(--rbg-white));
+  border: 1px solid var(--rbg-light);
+  box-sizing: border-box;
+}
+
+.colorButtonSelected {
+  border: 2px solid var(--rbg-primary);
+  outline: 2px solid #fff;      /* inner ring for dark colors */
+  outline-offset: -3px;         /* draw inside the button */
 }
 
 
@@ -150,6 +185,11 @@ html, body {
 
   .labelInputDiv {
     margin-bottom: var(--section-gap-desktop);
+    align-items: flex-start;
+  }
+
+  .textInput {
+    max-width: 420px;
   }
 }
 .appContainer {
