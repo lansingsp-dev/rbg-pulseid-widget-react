@@ -122,6 +122,26 @@ function getColorCode(rgb, colors) {
 // --- Utilities for Template Element/Color/Font Extraction ---
 
 /**
+ * Heuristic rank for common PulseID element names, so our UI order matches
+ * the renderer's intended mapping. Lower rank sorts earlier.
+ * 1: Top/Text/Line1/Upper, 2: Bottom/Bot/Line2/Lower, 3: Line3, else 999
+ */
+function rankElementName(name) {
+  const n = String(name || "").trim().toLowerCase();
+  if (!n) return 999;
+  // Explicit top synonyms
+  if (/(^|\b)(top|upper)\b/.test(n)) return 1;
+  if (/^text$/.test(n)) return 1;
+  if (/line\s*1\b/.test(n)) return 1;
+  // Explicit bottom synonyms
+  if (/(^|\b)(bottom|bot|lower)\b/.test(n)) return 2;
+  if (/line\s*2\b/.test(n)) return 2;
+  // Third line
+  if (/line\s*3\b/.test(n)) return 3;
+  return 999;
+}
+
+/**
  * Returns an array of element names for the selected template, in correct order for text lines.
  * Falls back to ["Line1", ...] if not available.
  * @param {PulseTemplate} template
@@ -132,22 +152,23 @@ function getElementNamesForTemplate(template, count) {
   const fallback = Array.from({ length: count }, (_, i) => `Line${i + 1}`);
   if (!template || !Array.isArray(template.TemplateElements)) return fallback;
 
-  // Collect text-capable elements and attempt to order them by any numeric suffix in ElementName
+  // Collect text-capable elements with their name and rank
   const els = template.TemplateElements
     .filter(el => el && typeof el.Text === 'string')
     .map(el => {
       const name = String(el.ElementName || '').trim();
-      const order = parseInt(name.match(/line\s*(\d+)/i)?.[1] || '999', 10);
-      return { name: name || '', order };
+      const rank = rankElementName(name);
+      // If no rank, try to infer numeric order fallback
+      const numeric = parseInt(name.match(/line\s*(\d+)/i)?.[1] || '999', 10);
+      return { name: name || '', rank, numeric };
     })
     .filter(e => e.name);
 
   if (els.length === 0) return fallback;
 
-  els.sort((a, b) => a.order - b.order);
+  els.sort((a, b) => (a.rank - b.rank) || (a.numeric - b.numeric) || a.name.localeCompare(b.name));
   const ordered = els.map(e => e.name);
 
-  // Pad or trim to the requested count
   while (ordered.length < count) ordered.push(`Line${ordered.length + 1}`);
   return ordered.slice(0, count);
 }
@@ -209,11 +230,17 @@ function deriveControlsFromTemplate(template, colours) {
     // Prefer elements that actually carry Text for line initialization
     const textEls = elements.filter(el => el && typeof el.Text === 'string');
 
-    // Sort text elements by any numeric suffix in ElementName: Line1, Line2, etc.
+    // Sort text elements with the same heuristic as getElementNamesForTemplate
     textEls.sort((a, b) => {
-        const ai = parseInt((a.ElementName || '').match(/line\s*(\d+)/i)?.[1] || '999', 10);
-        const bi = parseInt((b.ElementName || '').match(/line\s*(\d+)/i)?.[1] || '999', 10);
-        return ai - bi;
+      const an = String(a.ElementName || '');
+      const bn = String(b.ElementName || '');
+      const ar = rankElementName(an);
+      const br = rankElementName(bn);
+      if (ar !== br) return ar - br;
+      const ai = parseInt(an.match(/line\s*(\d+)/i)?.[1] || '999', 10);
+      const bi = parseInt(bn.match(/line\s*(\d+)/i)?.[1] || '999', 10);
+      if (ai !== bi) return ai - bi;
+      return an.localeCompare(bn);
     });
 
     if (textEls.length > 0) {
