@@ -126,7 +126,7 @@ const toProxyAssetUrl = (input) => {
 };
 
 const FONT_TYPE_FILTER = 'embroidery-template';
-const RENDER_DEBOUNCE_MS = 500;
+const RENDER_DEBOUNCE_MS = 1000;
 
 function getSelectedColorName(colors, rgb) {
     return colors.find(c => `rgb(${c.Red}, ${c.Green}, ${c.Blue})` === rgb)?.Name.split(' - ')[1] || '';
@@ -296,8 +296,25 @@ function deriveControlsFromTemplate(template, colours) {
 }
 
 // Preview image component
-const PreviewImage = ({src, alt, className}) => (
-    <img src={src} alt={alt} className={className}/>
+const PreviewImage = ({src, alt, className, onLoad, onError}) => (
+  <img src={src} alt={alt} className={className} onLoad={onLoad} onError={onError} />
+);
+
+// Spinner overlay wrapper for preview image
+const PreviewWithSpinner = ({ src, alt, imgClassName, showSpinner, onLoaded, imgKey }) => (
+  <div className={styles.imageWrapper}>
+    <PreviewImage
+      key={imgKey}
+      src={src}
+      alt={alt}
+      className={imgClassName}
+      onLoad={onLoaded}
+      onError={onLoaded}
+    />
+    <div className={showSpinner ? styles.spinnerOverlay : styles.spinnerHidden}>
+      <div className={styles.spinner} />
+    </div>
+  </div>
 );
 
 /**
@@ -552,6 +569,9 @@ const App = () => {
     const [font, setFont] = useState('Block');
     const [color, setColor] = useState(null);
     const [previewUrl, setPreviewUrl] = useState('');
+    const [pendingUrl, setPendingUrl] = useState('');
+    const [displayedUrl, setDisplayedUrl] = useState('');
+    const [isRendering, setIsRendering] = useState(false);
     /** @type {[PulseFont[], Function]} */
     const [availableFonts, setAvailableFonts] = useState([]);
     /** @type {[PulseColour[], Function]} */
@@ -564,6 +584,8 @@ const App = () => {
     const [availableDesigns, setAvailableDesigns] = useState([]);
     /** @type {[PulseDesign|null, Function]} */
     const [selectedDesign, setSelectedDesign] = useState(null);
+    const [imgKey, setImgKey] = useState(0);           // force img remount on src change so onLoad always fires
+    const [lastRenderUrl, setLastRenderUrl] = useState(''); // track last URL to avoid unnecessary spinner
 
     // In-memory (React state) store for thumbnails
     const [templateThumbByCode, setTemplateThumbByCode] = useState({});     // { [code]: url }
@@ -652,6 +674,8 @@ const App = () => {
                 const text = await res.text();
                 const data = JSON.parse(text);
                 setProduct(data);
+                // Set initial displayedUrl if available
+                if (data?.ProductPreviewURL) setDisplayedUrl(data.ProductPreviewURL);
             } catch (err) {
                 console.error('Failed to fetch product:', err);
             }
@@ -812,18 +836,16 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
 
     useEffect(() => {
         if (!product || !color) return;
-
         const debouncedRender = debounce(() => {
             const productCode = product?.Code;
             const transparency = "%2300FFFFFF";
             const textColorCode = getColorCode(color, availableColors);
             const templateCode = selectedTemplate?.Code || DEFAULT_TEMPLATE_CODE;
-            const orderType = selectedTemplate.OrderType;
+            const orderType = selectedTemplate?.OrderType || 'embroidery-template';
 
             const elementNames = getElementNamesForTemplate(selectedTemplate, textLines.length);
             const parts = [];
 
-            // Use our own running index so we can append the design as the next personalization
             let pIndex = 0;
             textLines.forEach((txt, i) => {
               if (typeof txt === 'string' && txt.trim().length > 0) {
@@ -837,29 +859,58 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
               }
             });
 
-            // Append selected design as its own personalization element
             const designName = String(selectedDesign?.DesignName || '').trim();
             if (designName) {
               parts.push(`&Personalizations[${pIndex}].ElementName=Design`);
               parts.push(`&Personalizations[${pIndex}].Design=${encodeURIComponent(designName)}`);
-              // If API requires an explicit IsText for non-text elements, omit it here on purpose
             }
 
-            const renderUrl = `${apiBase}?endpoint=/api/api/Orders/Render`
-                + `&OrderType=${encodeURIComponent(orderType)}`
-                + `&ProductCode=${productCode}`
-                + `&TemplateCode=${encodeURIComponent(templateCode)}`
-                + parts.join('')
-                + `&Transparency=${transparency}`
-                + `&RenderOnProduct=true`
-                + `&Dpi=72`;
+            const newUrl = `${apiBase}?endpoint=/api/api/Orders/Render`
+              + `&OrderType=${encodeURIComponent(orderType)}`
+              + `&ProductCode=${productCode}`
+              + `&TemplateCode=${encodeURIComponent(templateCode)}`
+              + parts.join('')
+              + `&Transparency=${transparency}`
+              + `&RenderOnProduct=true`
+              + `&Dpi=72`;
 
-            setPreviewUrl(renderUrl);
+            if (newUrl !== lastRenderUrl) {
+              setIsRendering(true);
+              setPendingUrl(newUrl);
+              setLastRenderUrl(newUrl);
+            }
         }, RENDER_DEBOUNCE_MS);
 
         debouncedRender();
         return () => debouncedRender.cancel();
     }, [textLines, font, color, product, availableColors, selectedTemplate, selectedDesign]);
+
+    // Preload pendingUrl and only swap in when loaded
+    useEffect(() => {
+      if (!pendingUrl) return;
+      const img = new window.Image();
+      img.onload = () => {
+        setPreviewUrl(pendingUrl);     // keep as the 'current' render URL
+        setDisplayedUrl(pendingUrl);   // actually shown in the UI
+        setImgKey(k => k + 1);         // ensure onLoad fires in PreviewImage
+        setIsRendering(false);
+      };
+      img.onerror = () => {
+        // if the render failed to load, stop spinner but keep the last good image
+        setIsRendering(false);
+      };
+      img.src = pendingUrl;
+      return () => {
+        img.onload = null;
+        img.onerror = null;
+      };
+    }, [pendingUrl]);
+
+    useEffect(() => {
+      if (!isRendering) return;
+      const id = setTimeout(() => setIsRendering(false), 10000); // auto-hide after 10s
+      return () => clearTimeout(id);
+    }, [isRendering, imgKey]);
 
     return (
         <div className={isMobile ? styles.appContainer : styles.container}>
@@ -867,10 +918,13 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
             // Mobile layout
                 <>
                     <div className={styles.fullscreenPreview}>
-                        <PreviewImage
-                            src={previewUrl?.startsWith('data:image') ? previewUrl : (previewUrl || product?.ProductPreviewURL)}
-                            alt="Bag Preview"
-                            className={styles.fullscreenImage}
+                        <PreviewWithSpinner
+                          src={displayedUrl || product?.ProductPreviewURL}
+                          alt="Bag Preview"
+                          imgClassName={styles.fullscreenImage}
+                          showSpinner={isRendering}
+                          onLoaded={() => setIsRendering(false)}
+                          imgKey={imgKey}
                         />
                     </div>
 
@@ -1004,10 +1058,13 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
             // Desktop layout
                 <>
                     <div className={styles.imageContainer}>
-                        <PreviewImage
-                            src={previewUrl?.startsWith('data:image') ? previewUrl : (previewUrl || product?.ProductPreviewURL)}
-                            alt="Bag Preview"
-                            className={styles.image}
+                        <PreviewWithSpinner
+                          src={displayedUrl || product?.ProductPreviewURL}
+                          alt="Bag Preview"
+                          imgClassName={styles.image}
+                          showSpinner={isRendering}
+                          onLoaded={() => setIsRendering(false)}
+                          imgKey={imgKey}
                         />
                     </div>
 
