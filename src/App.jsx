@@ -622,14 +622,16 @@ const App = () => {
     const [showColors, setShowColors] = useState(false);
     const [showTextInputs, setShowTextInputs] = useState(false);
     const [showTemplate, setShowTemplate] = useState(false);
+    const [showDesigns, setShowDesigns] = useState(false);
 
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
     const toggleSection = (section) => {
-        setShowTemplate(section === 'template' ? prev => !prev : false);
-        setShowTextInputs(section === 'text' ? prev => !prev : false);
-        setShowFonts(section === 'font' ? prev => !prev : false);
-        setShowColors(section === 'color' ? prev => !prev : false);
+        setShowTemplate(section === 'template' ? (prev) => !prev : false);
+        setShowDesigns(section === 'designs' ? (prev) => !prev : false);
+        setShowTextInputs(section === 'text' ? (prev) => !prev : false);
+        setShowFonts(section === 'font' ? (prev) => !prev : false);
+        setShowColors(section === 'color' ? (prev) => !prev : false);
     };
 
     useEffect(() => {
@@ -878,6 +880,21 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                         </button>
                         <button
                             className={styles.drawerToggleButton}
+                            onClick={() => toggleSection('designs')}
+                            aria-label="Designs"
+                        >
+                            <span className={styles.btnIcon} aria-hidden>
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                                <rect x="14" y="4" width="7" height="7" rx="1"></rect>
+                                <rect x="4" y="14" width="7" height="7" rx="1"></rect>
+                                <path d="M14 14h6v6h-6z"></path>
+                              </svg>
+                            </span>
+                            <span className={styles.btnLabel}>Designs</span>
+                        </button>
+                        <button
+                            className={styles.drawerToggleButton}
                             onClick={() => toggleSection('text')}
                             aria-label="Text"
                         >
@@ -927,13 +944,15 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                         </div>
                     </div>
 
-                    <div className={styles.labelInputDiv}>
-                        <label className={styles.sectionLabel}>Designs:</label>
-                        <DesignSelector
-                            designs={availableDesigns}
-                            selectedDesignSid={selectedDesign?.Sid ?? null}
-                            onSelect={handleSelectDesign}
-                        />
+                    <div className={`${styles.drawer} ${showDesigns ? styles.drawerVisible : styles.drawerHidden}`}>
+                        <div className={styles.labelInputDiv}>
+                            <label className={styles.sectionLabel}>Designs:</label>
+                            <DesignSelector
+                                designs={availableDesigns}
+                                selectedDesignSid={selectedDesign?.Sid ?? null}
+                                onSelect={handleSelectDesign}
+                            />
+                        </div>
                     </div>
 
                     <div className={`${styles.drawer} ${showTextInputs ? styles.drawerVisible : styles.drawerHidden}`}>
