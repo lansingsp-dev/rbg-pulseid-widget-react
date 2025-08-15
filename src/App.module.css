@@ -353,6 +353,14 @@ html, body {
   outline-offset: 1px;
 }
 
+.drawerToggleButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--rbg-light);
+  /* Prevent hover/focus styling by overriding */
+  background: var(--rbg-white);
+}
+
 .btnIcon {
   display: block;
   font-size: 1.25rem; /* icon size */

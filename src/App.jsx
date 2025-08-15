@@ -165,6 +165,16 @@ function rankElementName(name) {
 }
 
 /**
+ * Returns true if the template exposes a Design element in TemplateElements.
+ * The check is case-insensitive on ElementName === "Design".
+ * If there are no TemplateElements, we treat it as NOT supporting Design.
+ */
+function templateSupportsDesign(t) {
+  if (!t || !Array.isArray(t.TemplateElements)) return false;
+  return t.TemplateElements.some(el => String(el?.ElementName || '').trim().toLowerCase() === 'design');
+}
+
+/**
  * Returns an array of element names for the selected template, in correct order for text lines.
  * Falls back to ["Line1", ...] if not available.
  * @param {PulseTemplate} template
@@ -649,6 +659,12 @@ const App = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
     const toggleSection = (section) => {
+        // Prevent opening Designs when the current template doesn't support a Design element
+        if (section === 'designs' && !templateSupportsDesign(selectedTemplate)) {
+            // also ensure the designs drawer is closed
+            setShowDesigns(false);
+            return;
+        }
         setShowTemplate(section === 'template' ? (prev) => !prev : false);
         setShowDesigns(section === 'designs' ? (prev) => !prev : false);
         setShowTextInputs(section === 'text' ? (prev) => !prev : false);
@@ -723,6 +739,11 @@ const App = () => {
                 if (withThumbs.length > 0) {
                   const first = withThumbs[0];
                   setSelectedTemplate(first);
+                  // Clear any previously selected design if this template doesn't support a Design element
+                  if (!templateSupportsDesign(first)) {
+                    setSelectedDesign(null);
+                    setShowDesigns(false);
+                  }
                   setTemplateInitPending(true);
                   const count = getTemplateLineCount(first);
                   setTextLines((prev) => {
@@ -763,6 +784,11 @@ const App = () => {
 
     const handleSelectTemplate = (tpl) => {
         setSelectedTemplate(tpl);
+        // If the new template lacks a Design element, clear any selected design and close the drawer
+        if (!templateSupportsDesign(tpl)) {
+          setSelectedDesign(null);
+          setShowDesigns(false);
+        }
         setTemplateInitPending(true);
         const count = getTemplateLineCount(tpl);
         setTextLines((prev) => {
@@ -948,6 +974,7 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                             className={styles.drawerToggleButton}
                             onClick={() => toggleSection('designs')}
                             aria-label="Designs"
+                            disabled={!templateSupportsDesign(selectedTemplate)}
                         >
                             <span className={styles.btnIcon} aria-hidden>
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1010,16 +1037,18 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                         </div>
                     </div>
 
-                    <div className={`${styles.drawer} ${showDesigns ? styles.drawerVisible : styles.drawerHidden}`}>
-                        <div className={styles.labelInputDiv}>
-                            <label className={styles.sectionLabel}>Designs:</label>
-                            <DesignSelector
-                                designs={availableDesigns}
-                                selectedDesignSid={selectedDesign?.Sid ?? null}
-                                onSelect={handleSelectDesign}
-                            />
-                        </div>
-                    </div>
+                    {templateSupportsDesign(selectedTemplate) && (
+                      <div className={`${styles.drawer} ${showDesigns ? styles.drawerVisible : styles.drawerHidden}`}>
+                          <div className={styles.labelInputDiv}>
+                              <label className={styles.sectionLabel}>Designs:</label>
+                              <DesignSelector
+                                  designs={availableDesigns}
+                                  selectedDesignSid={selectedDesign?.Sid ?? null}
+                                  onSelect={handleSelectDesign}
+                              />
+                          </div>
+                      </div>
+                    )}
 
                     <div className={`${styles.drawer} ${showTextInputs ? styles.drawerVisible : styles.drawerHidden}`}>
                         <TextInputsSection
@@ -1080,14 +1109,16 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                             />
                         </div>
 
-                        <div className={styles.labelInputDiv}>
-                            <label className={styles.sectionLabel}>Designs:</label>
-                            <DesignSelector
-                                designs={availableDesigns}
-                                selectedDesignSid={selectedDesign?.Sid ?? null}
-                                onSelect={handleSelectDesign}
-                            />
-                        </div>
+                        {templateSupportsDesign(selectedTemplate) && (
+                          <div className={styles.labelInputDiv}>
+                              <label className={styles.sectionLabel}>Designs:</label>
+                              <DesignSelector
+                                  designs={availableDesigns}
+                                  selectedDesignSid={selectedDesign?.Sid ?? null}
+                                  onSelect={handleSelectDesign}
+                              />
+                          </div>
+                        )}
 
                         <TextInputsSection
                           selectedTemplate={selectedTemplate}
