@@ -822,16 +822,28 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
 
             const elementNames = getElementNamesForTemplate(selectedTemplate, textLines.length);
             const parts = [];
-            textLines.forEach((txt, idx) => {
+
+            // Use our own running index so we can append the design as the next personalization
+            let pIndex = 0;
+            textLines.forEach((txt, i) => {
               if (typeof txt === 'string' && txt.trim().length > 0) {
-                const elName = elementNames[idx] || `Line${idx + 1}`;
-                parts.push(`&Personalizations[${idx}].ElementName=${encodeURIComponent(elName)}`);
-                parts.push(`&Personalizations[${idx}].Text=${encodeURIComponent(txt)}`);
-                parts.push(`&Personalizations[${idx}].IsText=true`);
-                parts.push(`&Personalizations[${idx}].TextColour=${textColorCode}`);
-                parts.push(`&Personalizations[${idx}].FontOverride=${encodeURIComponent(font)}`);
+                const elName = elementNames[i] || `Line${i + 1}`;
+                parts.push(`&Personalizations[${pIndex}].ElementName=${encodeURIComponent(elName)}`);
+                parts.push(`&Personalizations[${pIndex}].Text=${encodeURIComponent(txt)}`);
+                parts.push(`&Personalizations[${pIndex}].IsText=true`);
+                parts.push(`&Personalizations[${pIndex}].TextColour=${textColorCode}`);
+                parts.push(`&Personalizations[${pIndex}].FontOverride=${encodeURIComponent(font)}`);
+                pIndex++;
               }
             });
+
+            // Append selected design as its own personalization element
+            const designName = String(selectedDesign?.DesignName || '').trim();
+            if (designName) {
+              parts.push(`&Personalizations[${pIndex}].ElementName=Design`);
+              parts.push(`&Personalizations[${pIndex}].Design=${encodeURIComponent(designName)}`);
+              // If API requires an explicit IsText for non-text elements, omit it here on purpose
+            }
 
             const renderUrl = `${apiBase}?endpoint=/api/api/Orders/Render`
                 + `&OrderType=${encodeURIComponent(orderType)}`
@@ -847,7 +859,7 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
 
         debouncedRender();
         return () => debouncedRender.cancel();
-    }, [textLines, font, color, product, availableColors, selectedTemplate]);
+    }, [textLines, font, color, product, availableColors, selectedTemplate, selectedDesign]);
 
     return (
         <div className={isMobile ? styles.appContainer : styles.container}>
