@@ -57,6 +57,7 @@ html, body {
   flex: 1 1 auto;
   min-height: 0;       /* IMPORTANT: allow overflow in flex child */
   overflow-y: auto;    /* scroll vertically when content is taller than viewport */
+  overflow-x: hidden;  /* prevent horizontal scroll of the whole right panel */
   padding: 0.5rem 1rem;
   color: var(--rbg-dark);
 }
@@ -169,6 +170,94 @@ html, body {
   outline-offset: -3px;         /* draw inside the button */
 }
 
+/* Designs: horizontal scroller with arrow buttons */
+.designsContainer {
+    position: relative;
+    padding: 0 28px; /* always reserve equal space for arrows */
+    isolation: isolate; /* create stacking context so arrows z-index wins */
+    width: 100%;
+    box-sizing: border-box;
+}
+.designsRow {
+    display: flex; flex-direction: row; gap: 0.5rem;
+    overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.25rem;
+    scrollbar-width: thin;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0; /* allow flex child to shrink instead of forcing page to scroll */
+}
+.designsContainer.hasLeft { }
+.designsContainer.noLeft  { }
+.designsContainer.hasRight{ }
+.designsContainer.noRight { }
+.designsRow::-webkit-scrollbar { height: 8px; }
+.designsRow::-webkit-scrollbar-thumb { background: var(--rbg-light); border-radius: 8px; }
+
+.designButton, .designButtonSelected {
+    padding: 0.25rem;
+    border-radius: var(--radius-md);
+    background-color: var(--rbg-white);
+    cursor: pointer;
+    width: 72px;
+    height: 54px;
+    border: 1px solid var(--rbg-light);
+    box-sizing: border-box;
+    flex: 0 0 auto;
+}
+.designButtonSelected { border: 2px solid var(--rbg-primary); }
+
+.designPreviewImage {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: var(--rbg-white);
+}
+
+.scrollArrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.15);
+    background: rgba(34,34,34,0.5); /* slightly lighter for more transparency */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000; /* ensure above thumbnails and tooltips */
+    transition: background 120ms ease-in-out, box-shadow 120ms ease-in-out, transform 80ms ease-in-out;
+}
+.scrollArrowLeft { left: 8px; }
+.scrollArrowRight { right: 8px; }
+.scrollArrowHidden { visibility: hidden; }
+.scrollArrow svg {
+  width: 20px;
+  height: 20px;
+  stroke: #fff;              /* high-contrast chevron */
+  stroke-width: 3.5;
+}
+.scrollArrowDisabled {
+    opacity: 0.35;
+    visibility: visible;
+    pointer-events: none;
+}
+
+.scrollArrow:hover {
+  background: var(--rbg-primary);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.24);
+}
+.scrollArrow:focus-visible {
+  outline: 2px solid var(--rbg-primary);
+  outline-offset: 2px;
+}
 
 @media screen and (min-width: 768px) {
   .container {
@@ -200,6 +289,12 @@ html, body {
 
   .textInput {
     max-width: 420px;
+  }
+}
+
+@media (min-width: 768px) {
+  .designsContainer {
+    max-width: 520px;
   }
 }
 .appContainer {

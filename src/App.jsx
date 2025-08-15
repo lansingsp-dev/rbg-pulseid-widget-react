@@ -1,6 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import debounce from 'lodash.debounce';
 import styles from './App.module.css';
+
 
 /**
  * @typedef {Object} PulseFont
@@ -61,6 +62,16 @@ import styles from './App.module.css';
  * @property {string=} ThumbnailUrl - cached/normalized thumbnail URL used by UI
  */
 
+/**
+ * @typedef {Object} PulseDesign
+ * @property {string|number} Sid
+ * @property {string} DesignName
+ * @property {string} DesignPreviewURL
+ * @property {string=} DesignPricingSKU
+ * @property {string=} DesignCategory
+ * @property {string=} Guid
+ */
+
 const DEFAULT_TEMPLATE_CODE = 'RBG_Default_Template';
 const MAX_TEXT_LINES = 3;
 
@@ -101,6 +112,18 @@ function getTemplateLineCount(t) {
 }
 
 const apiBase = '/api/pulseid-proxy'; // Netlify proxy path
+
+// Build a proxy URL for any asset or API endpoint. Accepts absolute URLs or endpoints.
+const toProxyAssetUrl = (input) => {
+  if (!input) return '';
+  let u = String(input).trim();
+  // Expand token used by PulseID payloads
+  u = u.replace('{api domain}', 'https://rockbottom.pulseidconnect.com');
+  // Route everything through the proxy. If it's an absolute URL, use `url=`; otherwise `endpoint=`.
+  const isAbs = /^https?:\/\//i.test(u);
+  const key = isAbs ? 'url' : 'endpoint';
+  return `${apiBase}?${key}=${encodeURIComponent(u)}`;
+};
 
 const FONT_TYPE_FILTER = 'embroidery-template';
 const RENDER_DEBOUNCE_MS = 500;
@@ -295,7 +318,7 @@ const FontSelector = ({fonts, selectedFont, onSelect}) => (
                     className={isSelected ? styles.fontButtonSelected : styles.fontButton}
                 >
                     <img
-                        src={f.FontPreviewUrl.replace('{api domain}', 'rockbottom.pulseidconnect.com')}
+                        src={toProxyAssetUrl(f.FontPreviewUrl)}
                         alt={f.FontName}
                         className={styles.fontPreviewImage}
                     />
@@ -361,7 +384,7 @@ const TemplateSelector = ({templates, selectedTemplateCode, onSelect}) => (
                     title={t.Name}
                 >
                     <img
-                        src={(t.ThumbnailUrl || '').replace('{api domain}', 'rockbottom.pulseidconnect.com')}
+                        src={t.ThumbnailUrl}
                         alt={t.Name}
                         className={styles.templatePreviewImage}
                     />
@@ -370,6 +393,135 @@ const TemplateSelector = ({templates, selectedTemplateCode, onSelect}) => (
         })}
     </div>
 );
+
+/**
+ * @param {{
+ *  designs: PulseDesign[],
+ *  selectedDesignSid: string|number|null,
+ *  onSelect: (design: PulseDesign) => void
+ * }} props
+ */
+const DesignSelector = ({ designs, selectedDesignSid, onSelect }) => {
+    const rowRef = useRef(null);
+    const itemRefs = useRef(new Map());
+    const [canLeft, setCanLeft] = useState(false);
+    const [canRight, setCanRight] = useState(false);
+
+    const updateArrows = () => {
+        const scrollContainer = rowRef.current;
+        if (!scrollContainer) return;
+        const EPS = 2;
+        const maxScrollLeft = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+        setCanLeft(scrollContainer.scrollLeft > EPS);
+        setCanRight(scrollContainer.scrollLeft < maxScrollLeft - EPS);
+    };
+
+    useEffect(() => {
+        updateArrows();
+        const scrollContainer = rowRef.current; if (!scrollContainer) return;
+        const onScroll = () => {
+            requestAnimationFrame(updateArrows);
+        };
+        scrollContainer.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', updateArrows);
+        return () => {
+            scrollContainer.removeEventListener('scroll', onScroll);
+            window.removeEventListener('resize', updateArrows);
+        };
+    }, []);
+
+    // Recalculate arrows whenever the row resizes (images loading can change scrollWidth)
+    useEffect(() => {
+        const el = rowRef.current; if (!el || typeof ResizeObserver === 'undefined') return;
+        const ro = new ResizeObserver(() => updateArrows());
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, []);
+
+    useEffect(() => {
+        if (selectedDesignSid == null) return;
+        const el = itemRefs.current.get(selectedDesignSid);
+        if (el && el.scrollIntoView) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+        setTimeout(updateArrows, 200);
+    }, [selectedDesignSid]);
+
+    // Re-evaluate arrows once designs render (images can change scrollWidth)
+    useEffect(() => {
+        updateArrows();
+        // delay to allow layout/scrollWidth to settle after images load
+        const id = setTimeout(updateArrows, 250);
+        return () => clearTimeout(id);
+    }, [designs]);
+
+    const scrollByAmount = (dir) => {
+        const el = rowRef.current; if (!el) return;
+        const delta = Math.round(el.clientWidth * 0.6) * (dir === 'left' ? -1 : 1);
+        const maxLeft = Math.max(0, el.scrollWidth - el.clientWidth);
+        const target = Math.max(0, Math.min(el.scrollLeft + delta, maxLeft));
+        el.scrollTo({ left: target, behavior: 'smooth' });
+        setTimeout(updateArrows, 200);
+    };
+
+    return (
+        <div className={styles.designsContainer}>
+            <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); scrollByAmount('left'); }}
+                className={`${styles.scrollArrow} ${styles.scrollArrowLeft} ${!canLeft ? styles.scrollArrowDisabled : ''}`}
+                aria-label="Scroll designs left"
+            >
+                <svg viewBox="0 0 24 24" fill="none" strokeWidth="3" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+            </button>
+
+            <div ref={rowRef} className={styles.designsRow}>
+                {designs.map(d => {
+                    const isSel = selectedDesignSid === d.Sid;
+                    return (
+                        <button
+                            key={d.Sid}
+                            ref={(el) => {
+                                if (el) itemRefs.current.set(d.Sid, el); else itemRefs.current.delete(d.Sid);
+                            }}
+                            onClick={() => onSelect(d)}
+                            className={isSel ? styles.designButtonSelected : styles.designButton}
+                            title={d.DesignName}
+                            aria-pressed={isSel}
+                        >
+                            <img
+                                src={d.ThumbnailUrl || (d.DesignPreviewURL ? toProxyAssetUrl(d.DesignPreviewURL) : '')}
+                                loading="lazy"
+                                alt={d.DesignName}
+                                className={styles.designPreviewImage}
+                                onLoad={updateArrows}
+                                onError={(e) => {
+                                    if (e.currentTarget.dataset.fallbackTried) return; // only try once
+                                    e.currentTarget.dataset.fallbackTried = '1';
+                                    const alt = d.Sid ?? d.Code ?? d.DesignName ?? '';
+                                    e.currentTarget.src = alt ? `${apiBase}?endpoint=/api/api/Designs/RenderPNG/${encodeURIComponent(String(alt))}` : '';
+                                }}
+                            />
+                        </button>
+                    );
+                })}
+            </div>
+
+            <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); scrollByAmount('right'); }}
+                className={`${styles.scrollArrow} ${styles.scrollArrowRight} ${!canRight ? styles.scrollArrowDisabled : ''}`}
+                aria-label="Scroll designs right"
+            >
+                <svg viewBox="0 0 24 24" fill="none" strokeWidth="3" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                </svg>
+            </button>
+        </div>
+    );
+};
 
 // Reusable Text Inputs section to avoid duplication
 const TextInputsSection = ({ selectedTemplate, textLines, setTextLines }) => {
@@ -408,19 +560,55 @@ const App = () => {
     const [availableTemplates, setAvailableTemplates] = useState([]);
     /** @type {[PulseTemplate|null, Function]} */
     const [selectedTemplate, setSelectedTemplate] = useState(null);
+    /** @type {[PulseDesign[], Function]} */
+    const [availableDesigns, setAvailableDesigns] = useState([]);
+    /** @type {[PulseDesign|null, Function]} */
+    const [selectedDesign, setSelectedDesign] = useState(null);
 
     // In-memory (React state) store for thumbnails
     const [templateThumbByCode, setTemplateThumbByCode] = useState({});     // { [code]: url }
+
+    // In-memory (React state) store for design thumbnails
+    const [designThumbByKey, setDesignThumbByKey] = useState({}); // { [key]: url }
+
+    const designKey = (d) => String(d?.Sid ?? d?.Code ?? d?.DesignName ?? '').trim();
+
+    // Helper to fetch/get a design thumbnail using React state as cache
+    const getDesignThumbnail = async (design) => {
+        const key = designKey(design);
+        if (!key) return '';
+        if (designThumbByKey[key]) return designThumbByKey[key];
+
+        // Prefer RenderPNG for reliability (GetThumbnail often points to missing cached files)
+        const tryIds = [];
+        if (design?.DesignName) tryIds.push(design.DesignName);
+        const alt = design?.Sid ?? design?.Code;
+        if (alt != null) tryIds.push(String(alt));
+
+        const makeRenderUrl = (id) => `${apiBase}?endpoint=/api/api/Designs/RenderPNG/${encodeURIComponent(id)}`;
+
+        for (const id of tryIds) {
+            const url = makeRenderUrl(id);
+            setDesignThumbByKey(prev => ({ ...prev, [key]: url }));
+            return url;
+        }
+
+        // Final fallback to the provided preview URL if present
+        const fallback = design?.DesignPreviewURL ? toProxyAssetUrl(design.DesignPreviewURL) : '';
+        if (fallback) setDesignThumbByKey(prev => ({ ...prev, [key]: fallback }));
+        return fallback;
+    };
 
     // Helper to fetch/get a template thumbnail using React state as cache
     const getTemplateThumbnail = async (code) => {
       if (templateThumbByCode[code]) return templateThumbByCode[code];
       try {
-        const tr = await fetch(`${apiBase}?endpoint=/api/Templates/GetThumbnail&id=${encodeURIComponent(code)}`);
+        const tr = await fetch(`${apiBase}?endpoint=/api/api/Templates/GetThumbnail&id=${encodeURIComponent(code)}`);
         const thumb = await tr.text();
-        const normalized = (thumb || '').replace('{api domain}', 'rockbottom.pulseidconnect.com');
-        setTemplateThumbByCode(prev => ({ ...prev, [code]: normalized }));
-        return normalized;
+        const normalized = (thumb || '').replace('{api domain}', 'https://rockbottom.pulseidconnect.com');
+        const proxied = toProxyAssetUrl(normalized);
+        setTemplateThumbByCode(prev => ({ ...prev, [code]: proxied }));
+        return proxied;
       } catch (e) {
         console.error('Thumbnail fetch failed for', code, e);
         return '';
@@ -458,7 +646,7 @@ const App = () => {
 
         const fetchProduct = async () => {
             try {
-                const res = await fetch(`${apiBase}?endpoint=/api/Designer/GetProduct&variantId=${vId}`);
+                const res = await fetch(`${apiBase}?endpoint=/api/api/Designer/GetProduct&variantId=${vId}`);
                 const text = await res.text();
                 const data = JSON.parse(text);
                 setProduct(data);
@@ -469,7 +657,7 @@ const App = () => {
 
         const fetchFonts = async () => {
             try {
-                const res = await fetch(`${apiBase}?endpoint=/api/Fonts/GetFonts`);
+                const res = await fetch(`${apiBase}?endpoint=/api/api/Fonts/GetFonts`);
                 const data = await res.json();
                 const filteredFonts = data.filter(f =>
                     typeof f.FontType === 'string' &&
@@ -483,7 +671,7 @@ const App = () => {
 
         const fetchColors = async () => {
             try {
-                const res = await fetch(`${apiBase}?endpoint=/api/Colours/GetColours`);
+                const res = await fetch(`${apiBase}?endpoint=/api/api/Colours/GetColours`);
                 const data = await res.json();
                 setAvailableColors(data);
             } catch (err) {
@@ -493,7 +681,7 @@ const App = () => {
 
         const fetchTemplates = async () => {
             try {
-                const res = await fetch(`${apiBase}?endpoint=/api/Templates/ListTemplates`);
+                const res = await fetch(`${apiBase}?endpoint=/api/api/Templates/ListTemplates`);
                 const data = await res.json();
                 // Filter templates whose Code starts with 'RBG_'
                 const rbg = Array.isArray(data) ? data.filter(t => typeof t.Code === 'string' && t.Code.startsWith('RBG_')) : [];
@@ -522,10 +710,29 @@ const App = () => {
             }
         };
 
+        const fetchDesigns = async () => {
+            try {
+                const res = await fetch(`${apiBase}?endpoint=/api/api/Designs/GetDesigns`);
+                const data = await res.json();
+                const rawList = Array.isArray(data) ? data : [];
+                const withThumbs = await Promise.all(
+                    rawList.map(async (d) => ({
+                        ...d,
+                        ThumbnailUrl: await getDesignThumbnail(d),
+                    }))
+                );
+                setAvailableDesigns(withThumbs);
+                if (!selectedDesign && withThumbs.length > 0) setSelectedDesign(withThumbs[0]);
+            } catch (err) {
+                console.error('Failed to fetch designs:', err);
+            }
+        };
+
         void fetchProduct();
         void fetchFonts();
         void fetchColors();
         void fetchTemplates();
+        void fetchDesigns();
     }, []);
 
     const handleSelectTemplate = (tpl) => {
@@ -538,6 +745,9 @@ const App = () => {
           return next.slice(0, Math.min(MAX_TEXT_LINES, count));
         });
     };
+
+    const handleSelectDesign = (d) => setSelectedDesign(d);
+
 // Map a Pulse font (e.g., "Block Regular") to a UI FontName (e.g., "Block")
 // Prefer mapping via Template.TemplateFonts (PulseFont -> FontName), then fall back to tolerant matching
 function resolveFontFromOverride(tpl, override, availableFonts) {
@@ -621,7 +831,7 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
               }
             });
 
-            const renderUrl = `${apiBase}?endpoint=/api/Orders/Render`
+            const renderUrl = `${apiBase}?endpoint=/api/api/Orders/Render`
                 + `&OrderType=${encodeURIComponent(orderType)}`
                 + `&ProductCode=${productCode}`
                 + `&TemplateCode=${encodeURIComponent(templateCode)}`
@@ -717,6 +927,15 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                         </div>
                     </div>
 
+                    <div className={styles.labelInputDiv}>
+                        <label className={styles.sectionLabel}>Designs:</label>
+                        <DesignSelector
+                            designs={availableDesigns}
+                            selectedDesignSid={selectedDesign?.Sid ?? null}
+                            onSelect={handleSelectDesign}
+                        />
+                    </div>
+
                     <div className={`${styles.drawer} ${showTextInputs ? styles.drawerVisible : styles.drawerHidden}`}>
                         <TextInputsSection
                           selectedTemplate={selectedTemplate}
@@ -770,6 +989,15 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                                 templates={availableTemplates}
                                 selectedTemplateCode={selectedTemplate?.Code ?? null}
                                 onSelect={handleSelectTemplate}
+                            />
+                        </div>
+
+                        <div className={styles.labelInputDiv}>
+                            <label className={styles.sectionLabel}>Designs:</label>
+                            <DesignSelector
+                                designs={availableDesigns}
+                                selectedDesignSid={selectedDesign?.Sid ?? null}
+                                onSelect={handleSelectDesign}
                             />
                         </div>
 

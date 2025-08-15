@@ -12,24 +12,55 @@ export async function handler(event, _context) {
     console.log('');
 
 
-    const BASE_URL = "https://rockbottom.pulseidconnect.com/api";
     const API_KEY = "pulseRockBottomGolf";
     const COMPANY = "PersonalizeYourGear";
 
-    // noinspection JSUnresolvedVariable
-    const method = event.httpMethod;
-    // noinspection JSUnresolvedVariable
-    const { endpoint, ...queryParams } = event.queryStringParameters || {};
+    const ORIGIN = "https://rockbottom.pulseidconnect.com"; // host only, no trailing slash
 
-    if (!endpoint) {
+    // Build a fully-qualified upstream URL from either a full URL or an endpoint path,
+    // and merge extra query params into it safely.
+    function buildUpstreamUrl(urlOrEndpoint, extraQuery) {
+        const extra = new URLSearchParams(extraQuery || {}).toString();
+        const isAbs = /^https?:\/\//i.test(urlOrEndpoint || "");
+        let base;
+        if (isAbs) {
+            base = urlOrEndpoint;
+        } else if (!urlOrEndpoint) {
+            base = `${ORIGIN}/api`;
+        } else if (urlOrEndpoint.startsWith('/')) {
+            base = `${ORIGIN}${urlOrEndpoint}`; // root-relative: /api/... or /API/...
+        } else if (/^api\//i.test(urlOrEndpoint)) {
+            base = `${ORIGIN}/${urlOrEndpoint}`; // "api/..."
+        } else {
+            base = `${ORIGIN}/api/${urlOrEndpoint.replace(/^\/+/, '')}`; // bare endpoint -> /api/endpoint
+        }
+        if (!extra) return base;
+        return base + (base.includes('?') ? `&${extra}` : `?${extra}`);
+    }
+
+    // noinspection JSUnresolvedVariable
+    const methodFromEvent = event.httpMethod || 'GET';
+    const qp = event.queryStringParameters || {};
+    const { url: absUrl, endpoint, method: methodOverride, ...forwardParams } = qp;
+    const method = (methodOverride || methodFromEvent).toUpperCase();
+
+    // Allow either `url=` (absolute) or `endpoint=` (path). One is required.
+    const targetSpecifier = absUrl || endpoint;
+    if (!targetSpecifier) {
         return {
             statusCode: 400,
-            body: JSON.stringify({ error: "Missing 'endpoint' parameter" }),
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, apiKey, company",
+                "Content-Type": "application/json",
+                "Cache-Control": "no-store"
+            },
+            body: JSON.stringify({ error: "Missing 'url' or 'endpoint' parameter" }),
         };
     }
 
-    const query = new URLSearchParams(queryParams).toString();
-    const url = `${BASE_URL}${endpoint}?${query}`;
+    const url = buildUpstreamUrl(targetSpecifier, forwardParams);
 
     const options = {
         method,
