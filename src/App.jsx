@@ -658,7 +658,17 @@ const App = () => {
 
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+    // Derived: does selected template have any text lines?
+    const hasTextLines = getTemplateLineCount(selectedTemplate ?? {}) > 0;
+
     const toggleSection = (section) => {
+        // Prevent text/font/color drawers when the template has no text elements
+        if ((section === 'text' || section === 'font' || section === 'color') && !hasTextLines) {
+            setShowTextInputs(false);
+            setShowFonts(false);
+            setShowColors(false);
+            return;
+        }
         // Prevent opening Designs when the current template doesn't support a Design element
         if (section === 'designs' && !templateSupportsDesign(selectedTemplate)) {
             // also ensure the designs drawer is closed
@@ -796,6 +806,12 @@ const App = () => {
           while (next.length < count) next.push('');
           return next.slice(0, Math.min(MAX_TEXT_LINES, count));
         });
+        // Close drawers when selecting a design-only template (no text lines)
+        if (count <= 0) {
+          setShowTextInputs(false);
+          setShowFonts(false);
+          setShowColors(false);
+        }
     };
 
     const handleSelectDesign = (d) => setSelectedDesign(d);
@@ -990,6 +1006,7 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                             className={styles.drawerToggleButton}
                             onClick={() => toggleSection('text')}
                             aria-label="Text"
+                            disabled={!hasTextLines}
                         >
                             <span className={styles.btnIcon} aria-hidden>
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1004,6 +1021,7 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                             className={styles.drawerToggleButton}
                             onClick={() => toggleSection('font')}
                             aria-label="Font"
+                            disabled={!hasTextLines}
                         >
                             <span className={styles.btnIcon} aria-hidden>Aa</span>
                             <span className={styles.btnLabel}>Font</span>
@@ -1012,6 +1030,7 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                             className={styles.drawerToggleButton}
                             onClick={() => toggleSection('color')}
                             aria-label="Color"
+                            disabled={!hasTextLines}
                         >
                             <span className={styles.btnIcon} aria-hidden>
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1050,38 +1069,44 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                       </div>
                     )}
 
-                    <div className={`${styles.drawer} ${showTextInputs ? styles.drawerVisible : styles.drawerHidden}`}>
-                        <TextInputsSection
-                          selectedTemplate={selectedTemplate}
-                          textLines={textLines}
-                          setTextLines={setTextLines}
-                        />
-                    </div>
+                    {hasTextLines && (
+                      <div className={`${styles.drawer} ${showTextInputs ? styles.drawerVisible : styles.drawerHidden}`}>
+                          <TextInputsSection
+                            selectedTemplate={selectedTemplate}
+                            textLines={textLines}
+                            setTextLines={setTextLines}
+                          />
+                      </div>
+                    )}
 
-                    <div className={`${styles.drawer} ${showFonts ? styles.drawerVisible : styles.drawerHidden}`}>
-                        <div className={styles.labelInputDiv}>
-                            <label className={styles.sectionLabel}>Font:</label>
-                            <FontSelector
-                                fonts={availableFonts}
-                                selectedFont={font}
-                                onSelect={setFont}
-                            />
-                        </div>
-                    </div>
+                    {hasTextLines && (
+                      <div className={`${styles.drawer} ${showFonts ? styles.drawerVisible : styles.drawerHidden}`}>
+                          <div className={styles.labelInputDiv}>
+                              <label className={styles.sectionLabel}>Font:</label>
+                              <FontSelector
+                                  fonts={availableFonts}
+                                  selectedFont={font}
+                                  onSelect={setFont}
+                              />
+                          </div>
+                      </div>
+                    )}
 
-                    <div className={`${styles.drawer} ${showColors ? styles.drawerVisible : styles.drawerHidden}`}>
-                        <div className={styles.inlineLabel}>
-                            <label className={styles.sectionLabel}>Color:</label>
-                            <span className={styles.selectedColorName}>
-                              {getSelectedColorName(availableColors, color)}
-                            </span>
-                        </div>
-                        <ColorSelector
-                            colors={availableColors}
-                            selectedColor={color}
-                            onSelect={setColor}
-                        />
-                    </div>
+                    {hasTextLines && (
+                      <div className={`${styles.drawer} ${showColors ? styles.drawerVisible : styles.drawerHidden}`}>
+                          <div className={styles.inlineLabel}>
+                              <label className={styles.sectionLabel}>Color:</label>
+                              <span className={styles.selectedColorName}>
+                                {getSelectedColorName(availableColors, color)}
+                              </span>
+                          </div>
+                          <ColorSelector
+                              colors={availableColors}
+                              selectedColor={color}
+                              onSelect={setColor}
+                          />
+                      </div>
+                    )}
                 </>
             ) : (
             // Desktop layout
@@ -1126,28 +1151,32 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                           setTextLines={setTextLines}
                         />
 
-                        <div className={styles.labelInputDiv}>
-                            <label className={styles.sectionLabel}>Font:</label>
-                            <FontSelector
-                                fonts={availableFonts}
-                                selectedFont={font}
-                                onSelect={setFont}
-                            />
-                        </div>
+                        {hasTextLines && (
+                          <div className={styles.labelInputDiv}>
+                              <label className={styles.sectionLabel}>Font:</label>
+                              <FontSelector
+                                  fonts={availableFonts}
+                                  selectedFont={font}
+                                  onSelect={setFont}
+                              />
+                          </div>
+                        )}
 
-                        <div className={styles.labelInputDiv}>
-                            <div className={styles.inlineLabel}>
-                                <label className={styles.sectionLabel}>Color:</label>
-                                <span className={styles.selectedColorName}>
-                                    {getSelectedColorName(availableColors, color)}
-                                </span>
-                            </div>
-                            <ColorSelector
-                                colors={availableColors}
-                                selectedColor={color}
-                                onSelect={setColor}
-                            />
-                        </div>
+                        {hasTextLines && (
+                          <div className={styles.labelInputDiv}>
+                              <div className={styles.inlineLabel}>
+                                  <label className={styles.sectionLabel}>Color:</label>
+                                  <span className={styles.selectedColorName}>
+                                      {getSelectedColorName(availableColors, color)}
+                                  </span>
+                              </div>
+                              <ColorSelector
+                                  colors={availableColors}
+                                  selectedColor={color}
+                                  onSelect={setColor}
+                              />
+                          </div>
+                        )}
                     </div>
                 </>
             )}
