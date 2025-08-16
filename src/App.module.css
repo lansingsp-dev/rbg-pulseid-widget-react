@@ -475,8 +475,28 @@ html, body {
   line-height: 1.2;
 }
 
-.selectedColorName {
-  font-weight: 400; /* name not bold */
+ .selectedColorName {
+   font-weight: 400; /* name not bold */
+   color: var(--rbg-dark);
+ }
+
+.selectedDesignInfo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+.selectedDesignThumb {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  background: var(--rbg-white);
+  border: 1px solid var(--rbg-light);
+  border-radius: 4px;
+}
+.selectedDesignName {
+  font-size: 0.9rem;
   color: var(--rbg-dark);
 }
 

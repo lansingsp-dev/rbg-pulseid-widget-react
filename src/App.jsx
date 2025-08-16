@@ -327,6 +327,11 @@ const PreviewWithSpinner = ({ src, alt, imgClassName, showSpinner, onLoaded, img
   </div>
 );
 
+// Stable key for a design, used for selection and caching
+function designKey(d) {
+  return String(d?.Sid ?? d?.Code ?? d?.DesignName ?? '').trim();
+}
+
 /**
  * @param {{
  *  fonts: PulseFont[],
@@ -424,11 +429,11 @@ const TemplateSelector = ({templates, selectedTemplateCode, onSelect}) => (
 /**
  * @param {{
  *  designs: PulseDesign[],
- *  selectedDesignSid: string|number|null,
+ *  selectedDesignKey: string|null,
  *  onSelect: (design: PulseDesign) => void
  * }} props
  */
-const DesignSelector = ({ designs, selectedDesignSid, onSelect }) => {
+const DesignSelector = ({ designs, selectedDesignKey, onSelect }) => {
     const rowRef = useRef(null);
     const itemRefs = useRef(new Map());
     const [canLeft, setCanLeft] = useState(false);
@@ -466,13 +471,13 @@ const DesignSelector = ({ designs, selectedDesignSid, onSelect }) => {
     }, []);
 
     useEffect(() => {
-        if (selectedDesignSid == null) return;
-        const el = itemRefs.current.get(selectedDesignSid);
+        if (selectedDesignKey == null) return;
+        const el = itemRefs.current.get(selectedDesignKey);
         if (el && el.scrollIntoView) {
             el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
         setTimeout(updateArrows, 200);
-    }, [selectedDesignSid]);
+    }, [selectedDesignKey]);
 
     // Re-evaluate arrows once designs render (images can change scrollWidth)
     useEffect(() => {
@@ -506,12 +511,13 @@ const DesignSelector = ({ designs, selectedDesignSid, onSelect }) => {
 
             <div ref={rowRef} className={styles.designsRow}>
                 {designs.map(d => {
-                    const isSel = selectedDesignSid === d.Sid;
+                    const key = designKey(d);
+                    const isSel = selectedDesignKey === key;
                     return (
                         <button
-                            key={d.Sid}
+                            key={key}
                             ref={(el) => {
-                                if (el) itemRefs.current.set(d.Sid, el); else itemRefs.current.delete(d.Sid);
+                                if (el) itemRefs.current.set(key, el); else itemRefs.current.delete(key);
                             }}
                             onClick={() => onSelect(d)}
                             className={isSel ? styles.designButtonSelected : styles.designButton}
@@ -603,7 +609,6 @@ const App = () => {
     // In-memory (React state) store for design thumbnails
     const [designThumbByKey, setDesignThumbByKey] = useState({}); // { [key]: url }
 
-    const designKey = (d) => String(d?.Sid ?? d?.Code ?? d?.DesignName ?? '').trim();
 
     // Helper to fetch/get a design thumbnail using React state as cache
     const getDesignThumbnail = async (design) => {
@@ -1060,9 +1065,19 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                       <div className={`${styles.drawer} ${showDesigns ? styles.drawerVisible : styles.drawerHidden}`}>
                           <div className={styles.labelInputDiv}>
                               <label className={styles.sectionLabel}>Designs:</label>
+                              {selectedDesign && (
+                                <span className={styles.selectedDesignInfo}>
+                                  <img
+                                    className={styles.selectedDesignThumb}
+                                    src={selectedDesign.ThumbnailUrl || (selectedDesign.DesignPreviewURL ? toProxyAssetUrl(selectedDesign.DesignPreviewURL) : '')}
+                                    alt={selectedDesign.DesignName}
+                                  />
+                                  <span className={styles.selectedDesignName}>{selectedDesign.DesignName}</span>
+                                </span>
+                              )}
                               <DesignSelector
                                   designs={availableDesigns}
-                                  selectedDesignSid={selectedDesign?.Sid ?? null}
+                                  selectedDesignKey={selectedDesign ? designKey(selectedDesign) : null}
                                   onSelect={handleSelectDesign}
                               />
                           </div>
@@ -1137,9 +1152,19 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
                         {templateSupportsDesign(selectedTemplate) && (
                           <div className={styles.labelInputDiv}>
                               <label className={styles.sectionLabel}>Designs:</label>
+                              {selectedDesign && (
+                                <span className={styles.selectedDesignInfo}>
+                                  <img
+                                    className={styles.selectedDesignThumb}
+                                    src={selectedDesign.ThumbnailUrl || (selectedDesign.DesignPreviewURL ? toProxyAssetUrl(selectedDesign.DesignPreviewURL) : '')}
+                                    alt={selectedDesign.DesignName}
+                                  />
+                                  <span className={styles.selectedDesignName}>{selectedDesign.DesignName}</span>
+                                </span>
+                              )}
                               <DesignSelector
                                   designs={availableDesigns}
-                                  selectedDesignSid={selectedDesign?.Sid ?? null}
+                                  selectedDesignKey={selectedDesign ? designKey(selectedDesign) : null}
                                   onSelect={handleSelectDesign}
                               />
                           </div>
