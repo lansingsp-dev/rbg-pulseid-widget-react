@@ -325,7 +325,7 @@ html, body {
   justify-content: space-around;
   padding: 0.5rem 0.5rem calc(0.5rem + var(--safe-bottom));
   background: var(--rbg-white);
-  z-index: 10;
+  z-index: 1000;
   /* Visual separator: soft shadow + subtle inner divider, no border */
   box-shadow: var(--shadow-soft), inset 0 1px 0 var(--rbg-light);
   backdrop-filter: none;
@@ -389,6 +389,7 @@ html, body {
     justify-content: space-between;
     gap: 0.25rem;              /* small gap between buttons */
     /* border-top-width removed, no border for divider */
+    position: fixed;
   }
   .drawerToggleButton {
     padding: 0.375rem 0.5rem;  /* smaller padding */
@@ -404,6 +405,10 @@ html, body {
   .colorButton,
   .colorButtonSelected { width: 30px; height: 30px; }
   .colorButtonRow { gap: 0.35rem; }
+
+  .drawer {
+    position: fixed;
+  }
 }
 
 .drawer {
