@@ -417,7 +417,7 @@ html, body {
   left: 0;
   right: 0;
   background: var(--rbg-white);
-  overflow-y: hidden;
+  overflow-y: auto;
   padding: 1rem;
   /* Add soft shadow and subtle interior separator, no backdrop blur */
   box-shadow: var(--shadow-drawer), inset 0 1px 0 rgba(0,0,0,0.08);
@@ -447,7 +447,7 @@ html, body {
 }
 
 .drawerVisible {
-  max-height: 300px; /* Adjust based on expected drawer content */
+  max-height: min(70vh, 520px);
   opacity: 1;
 }
 
