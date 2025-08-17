@@ -661,7 +661,14 @@ const App = () => {
     const [showTemplate, setShowTemplate] = useState(false);
     const [showDesigns, setShowDesigns] = useState(false);
 
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+      const checkMobile = () => setIsMobile(window.innerWidth < 768);
+      checkMobile(); // run once on mount
+      window.addEventListener('resize', checkMobile);
+      return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // Derived: does selected template have any text lines?
     const hasTextLines = getTemplateLineCount(selectedTemplate ?? {}) > 0;
