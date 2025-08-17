@@ -20,6 +20,7 @@
   --section-gap-mobile: 1rem;
   --section-gap-desktop: 1.75rem;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --controls-h: 64px;
 }
 
 html, body {
@@ -329,6 +330,7 @@ html, body {
   /* Visual separator: soft shadow + subtle inner divider, no border */
   box-shadow: var(--shadow-soft), inset 0 1px 0 var(--rbg-light);
   backdrop-filter: none;
+  min-height: var(--controls-h);
 }
 
 .drawerToggleButton {
@@ -413,7 +415,7 @@ html, body {
 
 .drawer {
   position: absolute;
-  bottom: calc(3.5rem + var(--safe-bottom));
+  bottom: calc(var(--controls-h) + var(--safe-bottom));
   left: 0;
   right: 0;
   background: var(--rbg-white);
@@ -421,7 +423,7 @@ html, body {
   padding: 1rem;
   /* Add soft shadow and subtle interior separator, no backdrop blur */
   box-shadow: var(--shadow-drawer), inset 0 1px 0 rgba(0,0,0,0.08);
-  z-index: 20;
+  z-index: 900;
   transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
   max-height: 0;
   opacity: 0;
@@ -447,7 +449,7 @@ html, body {
 }
 
 .drawerVisible {
-  max-height: min(70vh, 520px);
+  max-height: min(85vh, 640px);
   opacity: 1;
 }
 
