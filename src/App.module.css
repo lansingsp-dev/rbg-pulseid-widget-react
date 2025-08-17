@@ -461,15 +461,44 @@ html, body {
   }
 }
 
+
 .drawerVisible {
-    /* Use real available space: viewport - controls bar - safe area - tiny buffer */
-    max-height: calc(100vh - var(--controls-h) - var(--safe-bottom) - 16px);
+    /* Prefer the largest stable viewport height available, with a reasonable floor */
+    max-height: min(
+      90vh,
+      calc(100vh - var(--controls-h) - var(--safe-bottom))
+    );
     opacity: 1;
 }
+
+/* Prefer large viewport height when supported (best for iPad/iOS where 100vh can be short) */
+@supports (height: 100lvh) {
+  .drawerVisible {
+    max-height: min(
+      92lvh,
+      calc(100lvh - var(--controls-h) - var(--safe-bottom))
+    );
+  }
+}
+
+/* Fall back to dynamic viewport height if available */
 @supports (height: 100dvh) {
-    .drawerVisible {
-        max-height: calc(100dvh - var(--controls-h) - var(--safe-bottom) - 16px);
-    }
+  .drawerVisible {
+    max-height: min(
+      92dvh,
+      calc(100dvh - var(--controls-h) - var(--safe-bottom))
+    );
+  }
+}
+
+/* As a last resort on some Safari versions, use small viewport height which is more stable than 100vh */
+@supports (height: 100svh) {
+  .drawerVisible {
+    max-height: min(
+      92svh,
+      calc(100svh - var(--controls-h) - var(--safe-bottom))
+    );
+  }
 }
 
 .drawerHidden {
