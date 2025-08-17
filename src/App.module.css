@@ -299,12 +299,16 @@ html, body {
     max-width: 520px;
   }
 }
+/* Mobile app container: default to 100vh, but use 100dvh if supported */
 .appContainer {
   position: relative;
   width: 100%;
   height: 100vh;
   overflow: hidden;
   background: var(--rbg-light);
+}
+@supports (height: 100dvh) {
+  .appContainer { height: 100dvh; }
 }
 
 .fullscreenPreview {
@@ -314,6 +318,9 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+@supports (height: 100dvh) {
+  .fullscreenPreview { height: 100dvh; }
 }
 
 
@@ -420,6 +427,8 @@ html, body {
   right: 0;
   background: var(--rbg-white);
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   padding: 1rem;
   /* Add soft shadow and subtle interior separator, no backdrop blur */
   box-shadow: var(--shadow-drawer), inset 0 1px 0 rgba(0,0,0,0.08);
@@ -451,6 +460,9 @@ html, body {
 .drawerVisible {
   max-height: min(85vh, 640px);
   opacity: 1;
+}
+@supports (height: 100dvh) {
+  .drawerVisible { max-height: min(85dvh, 640px); }
 }
 
 .drawerHidden {
