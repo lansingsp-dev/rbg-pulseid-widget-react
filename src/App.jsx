@@ -329,7 +329,7 @@ const PreviewWithSpinner = ({ src, alt, imgClassName, showSpinner, onLoaded, img
 
 // Stable key for a design, used for selection and caching
 function designKey(d) {
-  return String(d?.Sid ?? d?.Code ?? d?.DesignName ?? '').trim();
+    return d.$id;
 }
 
 /**
@@ -533,7 +533,7 @@ const DesignSelector = ({ designs, selectedDesignKey, onSelect }) => {
                                 onError={(e) => {
                                     if (e.currentTarget.dataset.fallbackTried) return; // only try once
                                     e.currentTarget.dataset.fallbackTried = '1';
-                                    const alt = d.Sid ?? d.Code ?? d.DesignName ?? '';
+                                    const alt = d.$id ?? d.Code ?? d.DesignName ?? '';
                                     e.currentTarget.src = alt ? `${apiBase}?endpoint=/api/api/Designs/RenderPNG/${encodeURIComponent(String(alt))}` : '';
                                 }}
                             />
@@ -609,31 +609,15 @@ const App = () => {
     // In-memory (React state) store for design thumbnails
     const [designThumbByKey, setDesignThumbByKey] = useState({}); // { [key]: url }
 
-
     // Helper to fetch/get a design thumbnail using React state as cache
     const getDesignThumbnail = async (design) => {
         const key = designKey(design);
         if (!key) return '';
         if (designThumbByKey[key]) return designThumbByKey[key];
 
-        // Prefer RenderPNG for reliability (GetThumbnail often points to missing cached files)
-        const tryIds = [];
-        if (design?.DesignName) tryIds.push(design.DesignName);
-        const alt = design?.Sid ?? design?.Code;
-        if (alt != null) tryIds.push(String(alt));
-
-        const makeRenderUrl = (id) => `${apiBase}?endpoint=/api/api/Designs/RenderPNG/${encodeURIComponent(id)}`;
-
-        for (const id of tryIds) {
-            const url = makeRenderUrl(id);
-            setDesignThumbByKey(prev => ({ ...prev, [key]: url }));
-            return url;
-        }
-
-        // Final fallback to the provided preview URL if present
-        const fallback = design?.DesignPreviewURL ? toProxyAssetUrl(design.DesignPreviewURL) : '';
-        if (fallback) setDesignThumbByKey(prev => ({ ...prev, [key]: fallback }));
-        return fallback;
+        const url = `${apiBase}?endpoint=/api/api/Designs/RenderPNG/${encodeURIComponent(design.DesignName)}`;
+        setDesignThumbByKey(prev => ({ ...prev, [key]: url }));
+        return url;
     };
 
     // Helper to fetch/get a template thumbnail using React state as cache

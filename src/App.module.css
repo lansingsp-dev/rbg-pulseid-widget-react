@@ -400,6 +400,10 @@ html, body {
     /* border-top-width removed, no border for divider */
     position: fixed;
   }
+    /* Make drawer height calc match the compact mobile controls bar */
+    .appContainer { --controls-h: 52px; }
+    .drawer { bottom: calc(var(--controls-h) + var(--safe-bottom)); }
+
   .drawerToggleButton {
     padding: 0.375rem 0.5rem;  /* smaller padding */
     font-size: 0.9rem;         /* smaller text */
@@ -458,11 +462,14 @@ html, body {
 }
 
 .drawerVisible {
-  max-height: min(85vh, 640px);
-  opacity: 1;
+    /* Use real available space: viewport - controls bar - safe area - tiny buffer */
+    max-height: calc(100vh - var(--controls-h) - var(--safe-bottom) - 16px);
+    opacity: 1;
 }
 @supports (height: 100dvh) {
-  .drawerVisible { max-height: min(85dvh, 640px); }
+    .drawerVisible {
+        max-height: calc(100dvh - var(--controls-h) - var(--safe-bottom) - 16px);
+    }
 }
 
 .drawerHidden {
