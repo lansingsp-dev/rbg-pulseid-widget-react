@@ -19,6 +19,7 @@
   --space-lg: 16px;
   --section-gap-mobile: 1rem;
   --section-gap-desktop: 1.75rem;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 html, body {
@@ -317,12 +318,12 @@ html, body {
 
 .floatingControls {
   position: absolute;
-  bottom: 0;
+  bottom: calc(var(--safe-bottom));
   left: 0;
   right: 0;
   display: flex;
   justify-content: space-around;
-  padding: 0.5rem;
+  padding: 0.5rem 0.5rem calc(0.5rem + var(--safe-bottom));
   background: var(--rbg-white);
   z-index: 10;
   /* Visual separator: soft shadow + subtle inner divider, no border */
@@ -384,7 +385,7 @@ html, body {
 
 @media screen and (max-width: 767px) {
   .floatingControls {
-    padding: 0.25rem;          /* tighter bar */
+    padding: 0.25rem 0.25rem calc(0.25rem + var(--safe-bottom));          /* tighter bar */
     justify-content: space-between;
     gap: 0.25rem;              /* small gap between buttons */
     /* border-top-width removed, no border for divider */
@@ -407,7 +408,7 @@ html, body {
 
 .drawer {
   position: absolute;
-  bottom: 3.5rem;
+  bottom: calc(3.5rem + var(--safe-bottom));
   left: 0;
   right: 0;
   background: var(--rbg-white);
