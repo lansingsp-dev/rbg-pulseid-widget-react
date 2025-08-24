@@ -1,4 +1,3 @@
-
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
@@ -9,6 +8,23 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+
+    // Ensure React and dependencies see "production" at build time
+    define: {
+      'process.env.NODE_ENV': JSON.stringify('production'),
+      'process.env': {},      // prevent runtime process.env lookups
+      global: 'window',
+      __DEV__: false,
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        define: {
+          'process.env.NODE_ENV': '"production"',
+          __DEV__: 'false',
+        },
+      },
+    },
+
     build: isLib
       ? {
           // --- IIFE bundle for BigCommerce injection ---
@@ -21,18 +37,20 @@ export default defineConfig(({ mode }) => {
           rollupOptions: {
             external: [],
             output: {
-              inlineDynamicImports: true,
+              inlineDynamicImports: true, // force single-file bundle
             },
           },
           cssCodeSplit: false,
           sourcemap: false,
+          minify: 'esbuild',             // drop dev branches
           // IMPORTANT: when running a combined build, we don't want the lib build
           // to wipe out the SPA files. We'll set this via the CLI in scripts.
-          // emptyOutDir will be controlled by the CLI in package.json..
+          // emptyOutDir will be controlled by the CLI in package.json.
         }
       : {
           // --- Default SPA build (keeps https://...netlify.app working) ---
           sourcemap: false,
+          minify: 'esbuild',
         },
   };
 });
