@@ -1,5 +1,5 @@
 [build]
-command = "npm run build"
+command = "npm run build:both"
 publish = "dist"
 
 [functions]
@@ -9,3 +9,11 @@ directory = "netlify/functions"
 from = "/api/*"
 to = "/.netlify/functions/:splat"
 status = 200
+
+
+[[headers]]
+  for = "/rbg-designer.iife.js"
+  [headers.values]
+    cache-control = "no-cache, no-store, must-revalidate"
+    pragma = "no-cache"
+    expires = "0"

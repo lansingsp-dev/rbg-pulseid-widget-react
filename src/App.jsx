@@ -1,6 +1,7 @@
 import React, {useEffect, useState, useRef} from 'react';
 import debounce from 'lodash.debounce';
 import styles from './App.module.css';
+import ReactDOM from 'react-dom/client';
 
 
 /**
@@ -686,7 +687,7 @@ const App = () => {
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
-        const vId = params.get('variantid');
+        const vId = params.get('variantid') || params.get('sku');
 
         if (!vId) return;
 
@@ -1199,5 +1200,36 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
         </div>
     );
 };
+
+// --- Embed / Auto-mount support for Page Builder ---------------------------
+/**
+ * Programmatically mount the widget into a specific DOM element.
+ * @param {HTMLElement} el
+ */
+export function mountRbgDesigner(el) {
+  if (!el) return;
+  // Prevent double-mounts if this script is included more than once or re-run
+  if (el.dataset.rbgMounted === '1') return;
+  el.dataset.rbgMounted = '1';
+  ReactDOM.createRoot(el).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+}
+
+// If this script is loaded on a page that already contains the container,
+// auto-mount so it "just works" in BigCommerce Page Builder.
+if (typeof window !== 'undefined') {
+  const container = document.getElementById('rbgDesigner');
+  if (container) {
+    try {
+      mountRbgDesigner(container);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('Failed to mount rbg-pulseid-widget:', e);
+    }
+  }
+}
 
 export default App;
