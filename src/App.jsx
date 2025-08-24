@@ -462,7 +462,7 @@ const DesignSelector = ({ designs, selectedDesignKey, onSelect }) => {
         };
     }, []);
 
-    // Recalculate arrows whenever the row resizes (images loading can change scrollWidth)
+    // Recalculate arrows whenever the row resizes (image loading can change scrollWidth)
     useEffect(() => {
         const el = rowRef.current; if (!el || typeof ResizeObserver === 'undefined') return;
         const ro = new ResizeObserver(() => updateArrows());
@@ -654,7 +654,7 @@ const App = () => {
       return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Derived: does selected template have any text lines?
+    // Derived: Does the selected template have any text lines?
     const hasTextLines = getTemplateLineCount(selectedTemplate ?? {}) > 0;
 
     const toggleSection = (section) => {
@@ -667,7 +667,7 @@ const App = () => {
         }
         // Prevent opening Designs when the current template doesn't support a Design element
         if (section === 'designs' && !templateSupportsDesign(selectedTemplate)) {
-            // also ensure the designs drawer is closed
+            // also ensure the design drawer is closed
             setShowDesigns(false);
             return;
         }
@@ -946,7 +946,7 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
 
     useEffect(() => {
       if (!isRendering) return;
-      const id = setTimeout(() => setIsRendering(false), 10000); // auto-hide after 10s
+      const id = setTimeout(() => setIsRendering(false), 10000); // auto-hide after 10 seconds
       return () => clearTimeout(id);
     }, [isRendering, imgKey]);
 
