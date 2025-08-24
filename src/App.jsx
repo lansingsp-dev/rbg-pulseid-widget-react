@@ -687,7 +687,7 @@ const App = () => {
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
-        const vId = params.get('variantid') || params.get('sku');
+        const vId = params.get('variantid') || params.get('skuu');
 
         if (!vId) return;
 
