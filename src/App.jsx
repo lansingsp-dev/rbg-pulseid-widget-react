@@ -632,7 +632,7 @@ const App = () => {
         setTemplateThumbByCode(prev => ({ ...prev, [code]: proxied }));
         return proxied;
       } catch (e) {
-        console.error('Thumbnail fetch failed for', code, e);
+        console.error('[RBG]', 'Thumbnail fetch failed for', code, e);
         return '';
       }
     };
@@ -714,7 +714,7 @@ const App = () => {
                 );
                 setAvailableFonts(filteredFonts);
             } catch (err) {
-                console.error('Failed to fetch fonts:', err);
+                console.error('[RBG]', 'Failed to fetch fonts:', err);
             }
         };
 
@@ -724,7 +724,7 @@ const App = () => {
                 const data = await res.json();
                 setAvailableColors(data);
             } catch (err) {
-                console.error('Failed to fetch colors:', err);
+                console.error('[RBG]', 'Failed to fetch colors:', err);
             }
         };
 
@@ -760,7 +760,7 @@ const App = () => {
                   });
                 }
             } catch (err) {
-                console.error('Failed to fetch templates:', err);
+                console.error('[RBG]', 'Failed to fetch templates:', err);
             }
         };
 
@@ -778,7 +778,7 @@ const App = () => {
                 setAvailableDesigns(withThumbs);
                 if (!selectedDesign && withThumbs.length > 0) setSelectedDesign(withThumbs[0]);
             } catch (err) {
-                console.error('Failed to fetch designs:', err);
+                console.error('[RBG]', 'Failed to fetch designs:', err);
             }
         };
 
@@ -1227,7 +1227,7 @@ if (typeof window !== 'undefined') {
       mountRbgDesigner(container);
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error('Failed to mount rbg-pulseid-widget:', e);
+      console.error('[RBG]', 'Failed to mount rbg-pulseid-widget:', e);
     }
   }
 }
