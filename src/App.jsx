@@ -700,7 +700,7 @@ const App = () => {
                 // Set initial displayedUrl if available
                 if (data?.ProductPreviewURL) setDisplayedUrl(data.ProductPreviewURL);
             } catch (err) {
-                console.error('Failed to fetch product:', err);
+                console.error('[RBG]', 'Failed to fetch product:', err);
             }
         };
 
