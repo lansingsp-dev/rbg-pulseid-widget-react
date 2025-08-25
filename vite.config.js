@@ -30,10 +30,16 @@ export default defineConfig(({ mode }) => {
             },
           },
           cssCodeSplit: false,
-          sourcemap: false,
+
+         // IMPORTANT: When finished debugging, you can flip these back to sourcemap: false and
+         // remove minify: false (or set minify: 'esbuild') for a smaller, faster bundle.Set
+         // sourcemap
+          sourcemap: true,
+          minify: false,
+
           // IMPORTANT: when running a combined build, we don't want the lib build
           // to wipe out the SPA files. We'll set this via the CLI in scripts.
-          // emptyOutDir will be controlled by the CLI in package.json..
+          // emptyOutDir will be controlled by the CLI in package.json.
         }
       : {
           // --- Default SPA build (keeps https://...netlify.app working) ---
