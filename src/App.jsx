@@ -112,7 +112,40 @@ function getTemplateLineCount(t) {
     return 1;
 }
 
-const apiBase = '/api/pulseid-proxy'; // Netlify proxy path
+// Resolve API base to the origin that served this JS file (Netlify site or local netlify dev)
+function resolveApiBase() {
+  try {
+    // 1) Allow an explicit override from the host page
+    if (typeof window !== 'undefined' && window.__RBG_API_BASE) {
+      return String(window.__RBG_API_BASE).replace(/\/$/, '');
+    }
+
+    // 2) Try to infer the origin from the script tag that loaded this IIFE
+    if (typeof document !== 'undefined') {
+      const scripts = Array.from(document.getElementsByTagName('script'));
+      const selfScript = scripts.find(s => s.src && /rbg-designer\.iife\.js/.test(s.src));
+      if (selfScript) {
+        const origin = new URL(selfScript.src).origin;
+        // When developing with Vite on :3000, functions usually run on Netlify dev (:8888)
+        if (/^http:\/\/localhost:3000$/i.test(origin)) {
+          return 'http://localhost:8888/api/pulseid-proxy';
+        }
+        return `${origin}/api/pulseid-proxy`;
+      }
+    }
+
+    // 3) Fallback to current location origin
+    if (typeof window !== 'undefined' && window.location && window.location.origin) {
+      return `${window.location.origin}/api/pulseid-proxy`;
+    }
+  } catch (e) {
+    // no-op; fallthrough to default
+  }
+  // 4) Last resort: relative (works when app and function share the same origin)
+  return '/api/pulseid-proxy';
+}
+
+const apiBase = resolveApiBase();
 
 // Build a proxy URL for any asset or API endpoint. Accepts absolute URLs or endpoints.
 const toProxyAssetUrl = (input) => {
