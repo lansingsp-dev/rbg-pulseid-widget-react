@@ -613,6 +613,8 @@ const TextInputsSection = ({ selectedTemplate, textLines, setTextLines }) => {
 };
 
 const App = () => {
+    // Detect embedded mode (BigCommerce Page Builder, etc)
+    const isEmbedded = typeof document !== 'undefined' && !!document.getElementById('rbgDesigner');
     /** @type {[PulseProduct|null, Function]} */
     const [product, setProduct] = useState(null);
     const [textLines, setTextLines] = useState(['My Custom Text']); // up to 3 lines
@@ -984,8 +986,14 @@ function resolveFontFromOverride(tpl, override, availableFonts) {
       return () => clearTimeout(id);
     }, [isRendering, imgKey]);
 
+    // Compose root classes: always styles.root, add styles.embedded if embedded, then size variant
+    const rootClasses = [
+      styles.root,
+      isEmbedded ? styles.embedded : '',
+      isMobile ? styles.appContainer : styles.container
+    ].filter(Boolean).join(' ');
     return (
-        <div className={isMobile ? styles.appContainer : styles.container}>
+        <div className={rootClasses}>
             {isMobile ? (
             // Mobile layout
                 <>

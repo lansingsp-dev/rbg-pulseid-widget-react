@@ -23,12 +23,44 @@
   --controls-h: 64px;
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden;
+
+/* Base root for the widget to keep resets scoped */
+.root {
+  font-family: 'Mulish', sans-serif;
+  color: var(--rbg-dark);
 }
+
+/* Embedded mode: when injected into an existing page (BigCommerce),
+   avoid full-viewport and fixed-position UI that can break the host layout. */
+.embedded .container,
+.embedded .appContainer {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+.embedded .imageContainer,
+.embedded .controlContainer {
+  flex: 1 1 100%;
+}
+.embedded .fullscreenPreview { height: auto; }
+
+/* Controls bar should flow with the page in embedded mode */
+.embedded .floatingControls {
+  position: static;
+  box-shadow: none;
+  backdrop-filter: none;
+  padding: 0.5rem;
+}
+
+/* Drawers: become static blocks that expand/collapse without absolute/fixed positioning */
+.embedded .drawer {
+  position: static;
+  max-height: none;
+  opacity: 1;
+  box-shadow: none;
+  border-radius: 0;
+}
+.embedded .drawerHidden { display: none; }
 
 .container {
   display: flex;
