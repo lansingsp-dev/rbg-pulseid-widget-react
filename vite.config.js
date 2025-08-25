@@ -8,6 +8,11 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    define: {
+      'process.env.NODE_ENV': JSON.stringify('production'),
+      'process.env': {},
+      global: 'window',
+    },
     build: isLib
       ? {
           // --- IIFE bundle for BigCommerce injection ---
@@ -21,6 +26,7 @@ export default defineConfig(({ mode }) => {
             external: [],
             output: {
               inlineDynamicImports: true,
+              intro: 'window.process = window.process || { env: { NODE_ENV: "production" } };',
             },
           },
           cssCodeSplit: false,
