@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 
 // Conditional Vite config: default = SPA build (index.html)
 // Use `--mode lib` for the BigCommerce IIFE bundle.
@@ -7,7 +8,7 @@ export default defineConfig(({ mode }) => {
   const isLib = mode === 'lib';
 
   return {
-    plugins: [react()],
+    plugins: [react(), isLib && cssInjectedByJsPlugin()].filter(Boolean),
     define: {
       'process.env.NODE_ENV': JSON.stringify('production'),
       'process.env': {},
